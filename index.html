@@ -309,6 +309,18 @@ body.dark .logo-mark {
   justify-content: flex-end;
 }
 
+.toolbar-actions {
+  max-width: 540px;
+}
+
+.rate-note {
+  flex: 1 0 100%;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: right;
+}
+
 .btn {
   min-height: 42px;
   padding: 11px 15px;
@@ -338,9 +350,55 @@ body.dark .logo-mark {
   background: var(--panel-solid);
 }
 
+.icon-btn {
+  width: 44px;
+  min-width: 44px;
+  height: 42px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  line-height: 1;
+}
+
+.icon-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.currency-btn {
+  width: 62px;
+  min-width: 62px;
+  font-size: 13px;
+  letter-spacing: .03em;
+}
+
+.module-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .stats {
   display: grid;
-  grid-template-columns: repeat(5, minmax(150px, 1fr));
+  grid-template-columns: repeat(6, minmax(145px, 1fr));
   gap: 12px;
   margin-bottom: 18px;
 }
@@ -434,6 +492,43 @@ select.field {
   gap: 12px;
   overflow-x: auto;
   padding-bottom: 14px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(21, 19, 15, .45) rgba(21, 19, 15, .08);
+}
+
+.board::-webkit-scrollbar,
+.table-card::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+
+.board::-webkit-scrollbar-track,
+.table-card::-webkit-scrollbar-track {
+  background: rgba(21, 19, 15, .08);
+  border-radius: 999px;
+}
+
+.board::-webkit-scrollbar-thumb,
+.table-card::-webkit-scrollbar-thumb {
+  background: rgba(21, 19, 15, .42);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+body.dark .board,
+body.dark .table-card {
+  scrollbar-color: rgba(246, 239, 227, .28) rgba(255, 255, 255, .055);
+}
+
+body.dark .board::-webkit-scrollbar-track,
+body.dark .table-card::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, .055);
+}
+
+body.dark .board::-webkit-scrollbar-thumb,
+body.dark .table-card::-webkit-scrollbar-thumb {
+  background: rgba(246, 239, 227, .28);
 }
 
 .column {
@@ -459,13 +554,13 @@ body.dark .column {
 
 .column-head h3 {
   font-family: 'Montserrat', sans-serif;
-  font-size: 14px;
+  font-size: 13px;
   margin: 0;
   letter-spacing: 0;
 }
 
 .count {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--ink-soft);
   background: var(--panel);
   padding: 5px 9px;
@@ -479,8 +574,8 @@ body.dark .column {
   background: var(--panel-solid);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 15px;
-  margin-bottom: 10px;
+  padding: 13px;
+  margin-bottom: 9px;
   box-shadow: 0 12px 28px rgba(36, 28, 16, .08);
   transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
 }
@@ -523,6 +618,7 @@ body.dark .project-card {
 .task-title {
   font-weight: 800;
   font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
   letter-spacing: 0;
   line-height: 1.28;
 }
@@ -555,9 +651,9 @@ body.dark .project-card {
   align-items: center;
   gap: 5px;
   max-width: 100%;
-  padding: 6px 9px;
+  padding: 5px 8px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   background: var(--accent-soft);
   color: var(--ink-soft);
@@ -573,8 +669,8 @@ body.dark .project-card {
 .desc {
   color: var(--muted);
   line-height: 1.48;
-  font-size: 14px;
-  margin: 11px 0 0;
+  font-size: 13px;
+  margin: 9px 0 0;
 }
 
 .progress-wrap {
@@ -598,7 +694,7 @@ body.dark .project-card {
 
 .progress-text {
   margin-top: 6px;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--muted);
 }
 
@@ -612,6 +708,7 @@ body.dark .project-card {
   font-family: 'Montserrat', sans-serif;
   margin: 0 0 8px;
   letter-spacing: 0;
+  font-size: 16px;
 }
 
 .info-row {
@@ -619,10 +716,10 @@ body.dark .project-card {
   justify-content: space-between;
   gap: 12px;
   border-top: 1px solid var(--line);
-  padding-top: 10px;
-  margin-top: 10px;
+  padding-top: 9px;
+  margin-top: 9px;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .info-row strong {
@@ -647,14 +744,16 @@ body.dark .project-card {
 
 .table th, .table td {
   text-align: left;
-  padding: 14px 16px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--line);
-  vertical-align: top;
+  vertical-align: middle;
+  font-size: 13px;
+  line-height: 1.35;
 }
 
 .table th {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: .06em;
 }
@@ -766,6 +865,54 @@ textarea.field {
   max-width: 680px;
 }
 
+.timer-layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 1.68fr) minmax(320px, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.manual-time-box {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-soft);
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.manual-time-box h3 {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 17px;
+}
+
+.manual-time-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.time-log {
+  margin-top: 16px;
+}
+
+.time-log-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 16px 0;
+}
+
+.time-log-head h3 {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 17px;
+}
+
 .timer-display {
   font-family: 'Montserrat', sans-serif;
   font-size: clamp(38px, 7vw, 64px);
@@ -863,7 +1010,13 @@ body.dark .signature-floater {
   .topbar { align-items: flex-start; flex-direction: column; }
   .actions { justify-content: flex-start; width: 100%; }
   .actions .btn { flex: 1 1 auto; }
+  .actions .icon-btn { flex: 0 0 44px; }
+  .actions .currency-btn { flex-basis: 62px; }
+  .module-actions { justify-content: flex-start; }
+  .rate-note { text-align: left; }
   .stats, .filters, .grid, .form-grid { grid-template-columns: 1fr; }
+  .timer-layout { grid-template-columns: 1fr; }
+  .manual-time-grid { grid-template-columns: 1fr; }
 
   .board {
     display: flex;
@@ -937,14 +1090,22 @@ body.dark .signature-floater {
         <h2 id="pageTitle">Dashboard</h2>
         <p id="pageSubtitle">Command center personal pentru taskuri, clienți și proiecte.</p>
       </div>
-      <div class="actions">
-        <button class="btn secondary" id="exportBtn">Export JSON</button>
-        <button class="btn secondary" id="importBtn">Import</button>
-        <button class="btn secondary" id="resetDataBtn">Reset demo</button>
+      <div class="actions toolbar-actions">
+        <button class="btn secondary icon-btn currency-btn" id="currencyBtn" title="Schimbă moneda afișată" aria-label="Schimbă moneda afișată">RON</button>
+        <button class="btn secondary icon-btn" id="refreshRateBtn" title="Actualizează cursul EUR" aria-label="Actualizează cursul EUR">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.5-4.7"/><path d="M5 3v4h4"/><path d="M4 13a8 8 0 0 0 14.5 4.7"/><path d="M19 21v-4h-4"/></svg>
+        </button>
+        <button class="btn secondary icon-btn" id="exportBtn" title="Export JSON" aria-label="Export JSON">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+        </button>
+        <button class="btn secondary icon-btn" id="importBtn" title="Import JSON" aria-label="Import JSON">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21V9"/><path d="m7 14 5-5 5 5"/><path d="M5 3h14"/></svg>
+        </button>
+        <button class="btn secondary icon-btn" id="resetDataBtn" title="Șterge datele locale" aria-label="Șterge datele locale">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M6 7l1 14h10l1-14"/><path d="M9 7V4h6v3"/></svg>
+        </button>
         <input id="importFile" type="file" accept="application/json" hidden>
-        <button class="btn" id="newTaskBtn">+ Task</button>
-        <button class="btn secondary" id="newClientBtn">+ Client</button>
-        <button class="btn secondary" id="newProjectBtn">+ Proiect</button>
+        <span class="rate-note" id="rateInfo">Curs EUR: se încarcă...</span>
       </div>
     </div>
 
@@ -970,29 +1131,68 @@ body.dark .signature-floater {
     </section>
 
     <section id="tasks" class="view">
+      <div class="module-actions">
+        <button class="btn" id="newTaskBtn">+ Task</button>
+      </div>
       <div class="table-card"><table class="table" id="tasksTable"></table></div>
     </section>
 
     <section id="clients" class="view">
+      <div class="module-actions">
+        <button class="btn" id="newClientBtn">+ Client</button>
+      </div>
       <div class="grid" id="clientsGrid"></div>
     </section>
 
     <section id="projects" class="view">
+      <div class="module-actions">
+        <button class="btn" id="newProjectBtn">+ Proiect</button>
+      </div>
       <div class="grid" id="projectsGrid"></div>
     </section>
 
     <section id="timer" class="view">
-      <div class="timer-box">
-        <label>Task activ
-          <select class="field" id="timerTask"></select>
-        </label>
-        <div class="timer-display" id="timerDisplay">00:00:00</div>
-        <div class="actions" style="justify-content:flex-start">
-          <button class="btn" id="startTimerBtn">Start</button>
-          <button class="btn secondary" id="stopTimerBtn">Stop & salvează</button>
-          <button class="btn secondary" id="resetTimerBtn">Reset</button>
+      <div class="timer-layout">
+        <div class="timer-box">
+          <label>Task activ
+            <select class="field" id="timerTask"></select>
+          </label>
+          <label>Tarif orar timer (RON)
+            <input class="field" id="timerRate" type="number" min="0" step="0.01" placeholder="ex. 250">
+          </label>
+          <div class="timer-display" id="timerDisplay">00:00:00</div>
+          <div class="actions" style="justify-content:flex-start">
+            <button class="btn" id="startTimerBtn">Start</button>
+            <button class="btn secondary" id="stopTimerBtn">Stop & salvează</button>
+            <button class="btn secondary" id="resetTimerBtn">Reset</button>
+          </div>
+          <p class="desc">Timpul salvat se adaugă pe task. Îl poți folosi apoi la facturare sau estimări.</p>
         </div>
-        <p class="desc">Timpul salvat se adaugă pe task. Îl poți folosi apoi la facturare sau estimări.</p>
+
+        <div class="manual-time-box">
+          <h3>Adaugă timp manual</h3>
+          <label>Task
+            <select class="field" id="manualTimeTask"></select>
+          </label>
+          <div class="manual-time-grid">
+            <label>Ore
+              <input class="field" id="manualHours" type="number" min="0" step="1" value="0">
+            </label>
+            <label>Minute
+              <input class="field" id="manualMinutes" type="number" min="0" max="59" step="5" value="30">
+            </label>
+          </div>
+          <button class="btn" id="addManualTimeBtn">Adaugă timp</button>
+          <p class="desc">Pentru momentele în care ai lucrat, dar ai uitat să pornești timerul.</p>
+        </div>
+      </div>
+
+      <div class="table-card time-log">
+        <div class="time-log-head">
+          <h3>Jurnal timp</h3>
+          <span class="pill" id="timeLogTotal">00:00:00</span>
+        </div>
+        <table class="table" id="timeLogTable"></table>
       </div>
     </section>
   </main>
@@ -1014,6 +1214,10 @@ body.dark .signature-floater {
 <script>
 const STATUSES = ['Neînceput', 'În lucru', 'Feedback', 'Finalizat', 'Arhivat'];
 const PRIORITIES = ['Low', 'Medium', 'High', 'Urgent'];
+const ACTIVE_STATUSES = ['Neînceput', 'În lucru', 'Feedback'];
+const DEFAULT_EUR_RATE = 5.2222;
+const BNR_RATE_URL = 'https://www.bnr.ro/nbrfxrates.xml';
+const FRANKFURTER_RATE_URL = 'https://api.frankfurter.dev/v1/latest?base=EUR&symbols=RON';
 
 function uid() {
   if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
@@ -1042,10 +1246,12 @@ const APP_STORAGE_VERSION = '4';
 const seed = {
   clients: [],
   projects: [],
-  tasks: []
+  tasks: [],
+  timeEntries: []
 };
 
 let db = loadDb();
+let finance = loadFinance();
 let currentEdit = { type: null, id: null };
 let timer = { running: false, startedAt: null, elapsed: 0, interval: null };
 
@@ -1059,18 +1265,51 @@ function loadDb() {
   const version = localStorage.getItem('aap_workboard_version');
 
   if (version !== APP_STORAGE_VERSION) {
-    localStorage.removeItem('aap_workboard_db');
     localStorage.setItem('aap_workboard_version', APP_STORAGE_VERSION);
   }
 
   const saved = localStorage.getItem('aap_workboard_db');
   if (saved) {
     const parsed = safeParse(saved, null);
-    if (parsed && Array.isArray(parsed.clients) && Array.isArray(parsed.projects) && Array.isArray(parsed.tasks)) return parsed;
+    if (parsed && Array.isArray(parsed.clients) && Array.isArray(parsed.projects) && Array.isArray(parsed.tasks)) return normalizeDb(parsed);
     localStorage.removeItem('aap_workboard_db');
   }
   localStorage.setItem('aap_workboard_db', JSON.stringify(seed));
-  return cloneData(seed);
+  return normalizeDb(cloneData(seed));
+}
+
+function normalizeDb(data) {
+  data.clients = data.clients.map(c => ({ ...c }));
+  data.projects = data.projects.map(p => ({ ...p }));
+  data.tasks = data.tasks.map(t => ({
+    ...t,
+    billingType: t.billingType || 'hourly',
+    hourlyRate: Number(t.hourlyRate || 0),
+    taskValue: Number(t.taskValue || 0),
+    trackedSeconds: Number(t.trackedSeconds || 0)
+  }));
+  data.timeEntries = Array.isArray(data.timeEntries) ? data.timeEntries.map(entry => ({
+    id: entry.id || uid(),
+    taskId: entry.taskId || '',
+    seconds: Number(entry.seconds || 0),
+    date: entry.date || new Date().toISOString(),
+    source: entry.source || 'manual'
+  })).filter(entry => entry.taskId && entry.seconds > 0) : [];
+  return data;
+}
+
+function loadFinance() {
+  const saved = safeParse(localStorage.getItem('aap_workboard_finance'), null);
+  return {
+    currency: saved?.currency === 'EUR' ? 'EUR' : 'RON',
+    eurRate: Number(saved?.eurRate || DEFAULT_EUR_RATE),
+    rateDate: saved?.rateDate || '',
+    rateSource: saved?.rateSource || 'fallback'
+  };
+}
+
+function saveFinance() {
+  localStorage.setItem('aap_workboard_finance', JSON.stringify(finance));
 }
 
 function saveDb() {
@@ -1109,6 +1348,119 @@ function secondsToHms(s) {
   return `${h}:${m}:${sec}`;
 }
 
+function secondsToHm(s) {
+  s = Math.max(0, Math.floor(s || 0));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  return `${h}h ${String(m).padStart(2,'0')}m`;
+}
+
+function secondsToHours(s) {
+  return Math.max(0, Number(s || 0)) / 3600;
+}
+
+function isActiveStatus(status) {
+  return ACTIVE_STATUSES.includes(status);
+}
+
+function taskBillableRon(task) {
+  if (task.status === 'Arhivat') return 0;
+  if ((task.billingType || 'hourly') === 'fixed') return Number(task.taskValue || 0);
+  return secondsToHours(task.trackedSeconds) * Number(task.hourlyRate || 0);
+}
+
+function clientBalanceRon(clientId) {
+  return db.tasks
+    .filter(t => t.clientId === clientId)
+    .reduce((sum, task) => sum + taskBillableRon(task), 0);
+}
+
+function clientTrackedSeconds(clientId) {
+  return db.tasks
+    .filter(t => t.clientId === clientId)
+    .reduce((sum, task) => sum + Number(task.trackedSeconds || 0), 0);
+}
+
+function addTimeEntry(taskId, seconds, source = 'manual') {
+  const task = db.tasks.find(t => t.id === taskId);
+  if (!task || !seconds) return null;
+  const entry = {
+    id: uid(),
+    taskId,
+    seconds: Math.max(0, Math.round(seconds)),
+    source,
+    date: new Date().toISOString()
+  };
+  db.timeEntries.unshift(entry);
+  task.trackedSeconds = Number(task.trackedSeconds || 0) + entry.seconds;
+  return entry;
+}
+
+function timeEntryDateValue(entry) {
+  return (entry.date || new Date().toISOString()).slice(0, 10);
+}
+
+function displayAmount(ron) {
+  const amount = finance.currency === 'EUR' ? Number(ron || 0) / Number(finance.eurRate || DEFAULT_EUR_RATE) : Number(ron || 0);
+  return amount.toLocaleString('ro-RO', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  }) + ' ' + finance.currency;
+}
+
+function updateCurrencyUi() {
+  currencyBtn.textContent = finance.currency;
+  rateInfo.textContent = finance.currency === 'EUR'
+    ? `Curs EUR: ${Number(finance.eurRate || DEFAULT_EUR_RATE).toFixed(4)} RON${finance.rateDate ? ` · ${finance.rateDate}` : ''}${finance.rateSource ? ` · ${finance.rateSource}` : ''}`
+    : `Sumele sunt afișate în RON. EUR folosește curs BNR când este disponibil.`;
+}
+
+async function refreshEurRate(showToast = true) {
+  try {
+    rateInfo.textContent = 'Se actualizează cursul BNR...';
+    const rate = await fetchBnrEurRate().catch(() => fetchFrankfurterEurRate());
+    finance.eurRate = rate.value;
+    finance.rateDate = rate.date;
+    finance.rateSource = rate.source;
+    saveFinance();
+    updateCurrencyUi();
+    render();
+    if (showToast) toast(`Curs EUR actualizat din ${rate.source}`);
+  } catch (err) {
+    finance.eurRate = Number(finance.eurRate || DEFAULT_EUR_RATE);
+    saveFinance();
+    updateCurrencyUi();
+    if (showToast) toast('Nu am putut actualiza cursul. Folosesc ultimul curs salvat.');
+  }
+}
+
+async function fetchBnrEurRate() {
+  const response = await fetchWithTimeout(BNR_RATE_URL, { cache: 'no-store' }, 4500);
+  if (!response.ok) throw new Error('BNR indisponibil');
+  const xmlText = await response.text();
+  const xml = new DOMParser().parseFromString(xmlText, 'application/xml');
+  const eurNode = Array.from(xml.querySelectorAll('Rate')).find(node => node.getAttribute('currency') === 'EUR');
+  const dateNode = xml.querySelector('Cube[date]');
+  const eurRate = Number((eurNode?.textContent || '').replace(',', '.'));
+  if (!eurRate) throw new Error('Curs EUR invalid');
+  return { value: eurRate, date: dateNode?.getAttribute('date') || '', source: 'BNR' };
+}
+
+async function fetchFrankfurterEurRate() {
+  const response = await fetchWithTimeout(FRANKFURTER_RATE_URL, { cache: 'no-store' }, 4500);
+  if (!response.ok) throw new Error('Curs alternativ indisponibil');
+  const data = await response.json();
+  const eurRate = Number(data?.rates?.RON || 0);
+  if (!eurRate) throw new Error('Curs alternativ invalid');
+  return { value: eurRate, date: data?.date || '', source: 'ECB' };
+}
+
+function fetchWithTimeout(url, options = {}, timeout = 4500) {
+  const controller = new AbortController();
+  const timerId = setTimeout(() => controller.abort(), timeout);
+  return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timerId));
+}
+
 function priorityClass(p) {
   return p === 'Urgent' ? 'red' : p === 'High' ? 'yellow' : p === 'Medium' ? 'blue' : 'green';
 }
@@ -1123,6 +1475,7 @@ function taskMatches(task, q = '', client = '', status = '', priority = '') {
 
 function render() {
   saveDb();
+  updateCurrencyUi();
   populateSelects();
   renderStats();
   renderDashboard();
@@ -1131,6 +1484,7 @@ function render() {
   renderClients();
   renderProjects();
   renderTimerTaskSelect();
+  renderTimeLog();
 }
 
 function populateSelects() {
@@ -1153,12 +1507,14 @@ function renderStats() {
   const dueToday = db.tasks.filter(t => t.deadline === today && !['Finalizat','Arhivat'].includes(t.status)).length;
   const tracked = db.tasks.reduce((sum,t) => sum + (t.trackedSeconds || 0), 0) / 3600;
   const activeClients = db.clients.filter(c => db.tasks.some(t => t.clientId === c.id && !['Finalizat','Arhivat'].includes(t.status))).length;
+  const balance = db.tasks.reduce((sum,t) => sum + taskBillableRon(t), 0);
   stats.innerHTML = `
     <div class="stat"><span>Taskuri active</span><strong>${active}</strong></div>
     <div class="stat"><span>Deadline azi</span><strong>${dueToday}</strong></div>
     <div class="stat"><span>Întârziate</span><strong>${overdue}</strong></div>
     <div class="stat"><span>Clienți activi</span><strong>${activeClients}</strong></div>
     <div class="stat"><span>Ore lucrate</span><strong>${tracked.toFixed(1)}</strong></div>
+    <div class="stat"><span>Sold la zi</span><strong>${displayAmount(balance)}</strong></div>
   `;
 }
 
@@ -1212,6 +1568,7 @@ function taskCard(task) {
       <span class="pill ${priorityClass(task.priority)}">${task.priority}</span>
       <span class="pill ${overdue ? 'red' : ''}">${overdue ? 'Întârziat · ' : ''}${formatDate(task.deadline)}</span>
       <span class="pill">${escapeHtml(clientName(task.clientId))}</span>
+      <span class="pill green">${displayAmount(taskBillableRon(task))}</span>
       ${tags}
     </div>
     <div class="progress-wrap">
@@ -1230,23 +1587,29 @@ function renderTasksTable() {
     <td><span class="pill ${priorityClass(t.priority)}">${t.priority}</span></td>
     <td>${formatDate(t.deadline)}</td>
     <td>${secondsToHms(t.trackedSeconds || 0)}</td>
+    <td>${displayAmount(taskBillableRon(t))}</td>
     <td><button class="btn secondary" onclick="openTask('${t.id}')">Edit</button></td>
   </tr>`).join('');
   tasksTable.innerHTML = rows
-    ? `<thead><tr><th>Task</th><th>Client</th><th>Proiect</th><th>Status</th><th>Prioritate</th><th>Deadline</th><th>Timp</th><th></th></tr></thead><tbody>${rows}</tbody>`
+    ? `<thead><tr><th>Task</th><th>Client</th><th>Proiect</th><th>Status</th><th>Prioritate</th><th>Deadline</th><th>Timp</th><th>Sold</th><th></th></tr></thead><tbody>${rows}</tbody>`
     : `<tbody><tr><td><div class="empty">Nu ai încă niciun task.</div></td></tr></tbody>`;
 }
 
 function renderClients() {
   clientsGrid.innerHTML = db.clients.length ? db.clients.map(c => {
-    const tasks = db.tasks.filter(t => t.clientId === c.id);
+    const activeProjects = db.projects.filter(p => p.clientId === c.id && isActiveStatus(p.status)).length;
+    const activeTasks = db.tasks.filter(t => t.clientId === c.id && isActiveStatus(t.status)).length;
+    const workedHours = secondsToHours(clientTrackedSeconds(c.id));
+    const balance = clientBalanceRon(c.id);
     return `<article class="client-card">
       <div class="card-top"><h3>${escapeHtml(c.name)}</h3><button class="card-menu" onclick="openClient('${c.id}')" title="Editează clientul">•••</button></div>
       <p class="desc">${escapeHtml(c.notes || 'Fără note.')}</p>
       <div class="info-row"><span>Contact</span><strong>${escapeHtml(c.contact || '-')}</strong></div>
       <div class="info-row"><span>Email</span><strong>${escapeHtml(c.email || '-')}</strong></div>
-      <div class="info-row"><span>Taskuri</span><strong>${tasks.length}</strong></div>
-      <div class="info-row"><span>Valoare estimată</span><strong>${Number(c.value || 0)} lei</strong></div>
+      <div class="info-row"><span>Proiecte active</span><strong>${activeProjects}</strong></div>
+      <div class="info-row"><span>Taskuri active</span><strong>${activeTasks}</strong></div>
+      <div class="info-row"><span>Ore lucrate</span><strong>${workedHours.toFixed(1)}</strong></div>
+      <div class="info-row"><span>Sold la zi</span><strong>${displayAmount(balance)}</strong></div>
     </article>`;
   }).join('') : `<div class="empty">Nu ai încă niciun client.</div>`;
 }
@@ -1267,10 +1630,49 @@ function renderProjects() {
 }
 
 function renderTimerTaskSelect() {
+  const old = timerTask.value;
+  const oldManual = manualTimeTask.value;
   const activeTasks = db.tasks.filter(t => !['Finalizat','Arhivat'].includes(t.status));
-  timerTask.innerHTML = activeTasks.length
+  const options = activeTasks.length
     ? activeTasks.map(t => `<option value="${t.id}">${escapeHtml(t.title)}</option>`).join('')
     : '<option value="">Nu există taskuri active</option>';
+  timerTask.innerHTML = options;
+  manualTimeTask.innerHTML = options;
+  if (activeTasks.some(t => t.id === old)) timerTask.value = old;
+  if (activeTasks.some(t => t.id === oldManual)) manualTimeTask.value = oldManual;
+  syncTimerRate();
+}
+
+function renderTimeLog() {
+  const entries = [...db.timeEntries].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  const total = entries.reduce((sum, entry) => sum + Number(entry.seconds || 0), 0);
+  timeLogTotal.textContent = secondsToHms(total);
+
+  if (!entries.length) {
+    timeLogTable.innerHTML = `<tbody><tr><td><div class="empty">Nu există încă intrări de timp.</div></td></tr></tbody>`;
+    return;
+  }
+
+  const rows = entries.map(entry => {
+    const task = db.tasks.find(t => t.id === entry.taskId);
+    const tags = (task?.tags || []).length ? task.tags.map(tag => `<span class="pill">#${escapeHtml(tag)}</span>`).join(' ') : '-';
+    return `<tr>
+      <td><strong>${escapeHtml(task?.title || 'Task șters')}</strong></td>
+      <td>${escapeHtml(clientName(task?.clientId || ''))}</td>
+      <td>${tags}</td>
+      <td>${secondsToHm(entry.seconds)}</td>
+      <td>${formatDate(timeEntryDateValue(entry))}</td>
+      <td><span class="pill">${entry.source === 'timer' ? 'Timer' : 'Manual'}</span></td>
+      <td><button class="btn secondary" onclick="openTimeEntry('${entry.id}')">Edit</button></td>
+    </tr>`;
+  }).join('');
+
+  timeLogTable.innerHTML = `<thead><tr><th>Task</th><th>Client</th><th>Tag</th><th>Timp</th><th>Dată</th><th>Sursă</th><th></th></tr></thead><tbody>${rows}</tbody>`;
+}
+
+function syncTimerRate() {
+  const task = db.tasks.find(t => t.id === timerTask.value);
+  timerRate.value = task ? Number(task.hourlyRate || 0) : '';
 }
 
 function openModal(title, html, onSubmit, onDelete) {
@@ -1294,6 +1696,12 @@ function taskForm(t = {}) {
     <label>Prioritate <select class="field" name="priority">${PRIORITIES.map(p => `<option ${t.priority === p ? 'selected' : ''}>${p}</option>`).join('')}</select></label>
     <label>Deadline <input class="field" type="date" name="deadline" value="${escapeAttr(t.deadline || '')}"></label>
     <label>Progres % <input class="field" type="number" min="0" max="100" name="progress" value="${Number(t.progress || 0)}"></label>
+    <label>Tip taxare <select class="field" name="billingType">
+      <option value="hourly" ${(t.billingType || 'hourly') === 'hourly' ? 'selected' : ''}>Preț per oră</option>
+      <option value="fixed" ${t.billingType === 'fixed' ? 'selected' : ''}>Preț per task</option>
+    </select></label>
+    <label>Tarif orar (RON) <input class="field" type="number" min="0" step="0.01" name="hourlyRate" value="${Number(t.hourlyRate || 0)}"></label>
+    <label>Valoare task (RON) <input class="field" type="number" min="0" step="0.01" name="taskValue" value="${Number(t.taskValue || 0)}"></label>
     <label>Ore estimate <input class="field" type="number" min="0" step="0.25" name="estimatedHours" value="${Number(t.estimatedHours || 0)}"></label>
     <label>Taguri custom <input class="field" name="tags" placeholder="design, urgent, fmc" value="${escapeAttr((t.tags || []).join(', '))}"></label>
     <label class="full">Linkuri / assets <input class="field" name="links" value="${escapeAttr(t.links || '')}"></label>
@@ -1313,6 +1721,9 @@ function openTask(id = null) {
       priority: fd.get('priority'),
       deadline: fd.get('deadline'),
       progress: Math.min(100, Math.max(0, Number(fd.get('progress') || 0))),
+      billingType: fd.get('billingType'),
+      hourlyRate: Number(fd.get('hourlyRate') || 0),
+      taskValue: Number(fd.get('taskValue') || 0),
       estimatedHours: Number(fd.get('estimatedHours') || 0),
       tags: fd.get('tags').split(',').map(x => x.trim().replace(/^#/, '')).filter(Boolean),
       links: fd.get('links'),
@@ -1320,7 +1731,10 @@ function openTask(id = null) {
       trackedSeconds: t.trackedSeconds || 0
     };
     if (id) db.tasks = db.tasks.map(x => x.id === id ? item : x); else db.tasks.unshift(item);
-  }, id ? () => db.tasks = db.tasks.filter(x => x.id !== id) : null);
+  }, id ? () => {
+    db.timeEntries = db.timeEntries.filter(entry => entry.taskId !== id);
+    db.tasks = db.tasks.filter(x => x.id !== id);
+  } : null);
 }
 
 function clientForm(c = {}) {
@@ -1330,7 +1744,6 @@ function clientForm(c = {}) {
     <label>Email <input class="field" name="email" value="${escapeAttr(c.email || '')}"></label>
     <label>Telefon <input class="field" name="phone" value="${escapeAttr(c.phone || '')}"></label>
     <label>Website / Instagram <input class="field" name="website" value="${escapeAttr(c.website || '')}"></label>
-    <label>Valoare estimată lei <input class="field" type="number" name="value" value="${Number(c.value || 0)}"></label>
     <label class="full">Note <textarea class="field" name="notes">${escapeHtml(c.notes || '')}</textarea></label>
   </div>`;
 }
@@ -1338,7 +1751,7 @@ function clientForm(c = {}) {
 function openClient(id = null) {
   const c = id ? db.clients.find(x => x.id === id) : {};
   openModal(id ? 'Editează client' : 'Client nou', clientForm(c), fd => {
-    const item = { id: id || uid(), name: fd.get('name').trim(), contact: fd.get('contact'), email: fd.get('email'), phone: fd.get('phone'), website: fd.get('website'), value: Number(fd.get('value') || 0), notes: fd.get('notes') };
+    const item = { id: id || uid(), name: fd.get('name').trim(), contact: fd.get('contact'), email: fd.get('email'), phone: fd.get('phone'), website: fd.get('website'), notes: fd.get('notes') };
     if (id) db.clients = db.clients.map(x => x.id === id ? item : x); else db.clients.unshift(item);
   }, id ? () => {
     db.tasks.forEach(t => { if (t.clientId === id) t.clientId = ''; });
@@ -1369,6 +1782,40 @@ function openProject(id = null) {
   } : null);
 }
 
+function timeEntryForm(entry) {
+  const task = db.tasks.find(t => t.id === entry.taskId);
+  const hours = Math.floor(Number(entry.seconds || 0) / 3600);
+  const minutes = Math.floor((Number(entry.seconds || 0) % 3600) / 60);
+  return `<div class="form-grid">
+    <label class="full">Task <input class="field" value="${escapeAttr(task?.title || 'Task șters')}" disabled></label>
+    <label>Ore <input class="field" type="number" min="0" step="1" name="hours" value="${hours}"></label>
+    <label>Minute <input class="field" type="number" min="0" max="59" step="5" name="minutes" value="${minutes}"></label>
+    <label>Dată <input class="field" type="date" name="date" value="${escapeAttr(timeEntryDateValue(entry))}"></label>
+    <label>Sursă <select class="field" name="source">
+      <option value="manual" ${entry.source !== 'timer' ? 'selected' : ''}>Manual</option>
+      <option value="timer" ${entry.source === 'timer' ? 'selected' : ''}>Timer</option>
+    </select></label>
+  </div>`;
+}
+
+function openTimeEntry(id) {
+  const entry = db.timeEntries.find(x => x.id === id);
+  if (!entry) return;
+  openModal('Editează timp', timeEntryForm(entry), fd => {
+    const task = db.tasks.find(t => t.id === entry.taskId);
+    const oldSeconds = Number(entry.seconds || 0);
+    const newSeconds = Math.round((Math.max(0, Number(fd.get('hours') || 0)) * 60 + Math.max(0, Number(fd.get('minutes') || 0))) * 60);
+    entry.seconds = newSeconds;
+    entry.date = (fd.get('date') || timeEntryDateValue(entry)) + 'T12:00:00.000Z';
+    entry.source = fd.get('source');
+    if (task) task.trackedSeconds = Math.max(0, Number(task.trackedSeconds || 0) - oldSeconds + newSeconds);
+  }, () => {
+    const task = db.tasks.find(t => t.id === entry.taskId);
+    if (task) task.trackedSeconds = Math.max(0, Number(task.trackedSeconds || 0) - Number(entry.seconds || 0));
+    db.timeEntries = db.timeEntries.filter(x => x.id !== id);
+  });
+}
+
 function escapeHtml(str) {
   return String(str).replace(/[&<>'"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[m]));
 }
@@ -1379,6 +1826,43 @@ newClientBtn.onclick = () => openClient();
 newProjectBtn.onclick = () => openProject();
 closeModal.onclick = () => modalBackdrop.classList.remove('active');
 modalBackdrop.addEventListener('click', e => { if (e.target === modalBackdrop) modalBackdrop.classList.remove('active'); });
+
+currencyBtn.onclick = () => {
+  finance.currency = finance.currency === 'RON' ? 'EUR' : 'RON';
+  saveFinance();
+  updateCurrencyUi();
+  render();
+  if (finance.currency === 'EUR' && finance.rateSource !== 'BNR') refreshEurRate();
+};
+
+refreshRateBtn.onclick = () => refreshEurRate();
+timerTask.addEventListener('input', syncTimerRate);
+timerRate.addEventListener('input', () => {
+  const task = db.tasks.find(t => t.id === timerTask.value);
+  if (!task) return;
+  task.hourlyRate = Number(timerRate.value || 0);
+  if (!task.billingType) task.billingType = 'hourly';
+  saveDb();
+});
+
+addManualTimeBtn.onclick = () => {
+  const task = db.tasks.find(t => t.id === manualTimeTask.value);
+  if (!task) {
+    toast('Alege un task activ.');
+    return;
+  }
+  const hours = Math.max(0, Number(manualHours.value || 0));
+  const minutes = Math.max(0, Number(manualMinutes.value || 0));
+  const seconds = Math.round((hours * 60 + minutes) * 60);
+  if (!seconds) {
+    toast('Introdu ore sau minute.');
+    return;
+  }
+  addTimeEntry(task.id, seconds, 'manual');
+  saveDb();
+  render();
+  toast('Timp adăugat manual');
+};
 
 [searchInput, filterClient, filterStatus, filterPriority].forEach(el => el.addEventListener('input', render));
 [boardSearch, boardClient, boardPriority].forEach(el => el.addEventListener('input', render));
@@ -1396,7 +1880,7 @@ document.querySelectorAll('.nav button').forEach(btn => {
       board: 'Kanban simplu, fără echipă, fără complicații.',
       tasks: 'Listă completă pentru editare și urmărire rapidă.',
       clients: 'CRM personal pentru clienții tăi.',
-      projects: 'Briefuri, bugete si livrabile grupate pe proiect.',
+      projects: 'Briefuri, bugete și livrabile grupate pe proiect.',
       timer: 'Cronometrează munca și salvează timpul pe task.'
     };
     pageSubtitle.textContent = subtitles[btn.dataset.view];
@@ -1461,7 +1945,9 @@ stopTimerBtn.onclick = () => {
   clearInterval(timer.interval);
   const task = db.tasks.find(t => t.id === timerTask.value);
   if (task) {
-    task.trackedSeconds = (task.trackedSeconds || 0) + timer.elapsed;
+    task.hourlyRate = Number(timerRate.value || task.hourlyRate || 0);
+    if (!task.billingType) task.billingType = 'hourly';
+    addTimeEntry(task.id, timer.elapsed, 'timer');
     toast('Timp salvat pe task');
   }
   timer.elapsed = 0;
@@ -1483,6 +1969,7 @@ function updateTimerDisplay() {
 }
 
 render();
+refreshEurRate(false);
 </script>
 </body>
 </html>
