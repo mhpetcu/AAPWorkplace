@@ -1372,13 +1372,13 @@ function taskBillableRon(task) {
 
 function clientBalanceRon(clientId) {
   return db.tasks
-    .filter(t => t.clientId === clientId)
+    .filter(t => t.clientId === clientId && t.status !== 'Arhivat')
     .reduce((sum, task) => sum + taskBillableRon(task), 0);
 }
 
 function clientTrackedSeconds(clientId) {
   return db.tasks
-    .filter(t => t.clientId === clientId)
+    .filter(t => t.clientId === clientId && t.status !== 'Arhivat')
     .reduce((sum, task) => sum + Number(task.trackedSeconds || 0), 0);
 }
 
@@ -1506,9 +1506,13 @@ function renderStats() {
   const overdue = db.tasks.filter(isOverdue).length;
   const today = new Date().toISOString().slice(0,10);
   const dueToday = db.tasks.filter(t => t.deadline === today && !['Finalizat','Arhivat'].includes(t.status)).length;
-  const tracked = db.tasks.reduce((sum,t) => sum + (t.trackedSeconds || 0), 0) / 3600;
+  const tracked = db.tasks
+    .filter(t => t.status !== 'Arhivat')
+    .reduce((sum,t) => sum + (t.trackedSeconds || 0), 0) / 3600;
   const activeClients = db.clients.filter(c => db.tasks.some(t => t.clientId === c.id && !['Finalizat','Arhivat'].includes(t.status))).length;
-  const balance = db.tasks.reduce((sum,t) => sum + taskBillableRon(t), 0);
+  const balance = db.tasks
+    .filter(t => t.status !== 'Arhivat')
+    .reduce((sum,t) => sum + taskBillableRon(t), 0);
   stats.innerHTML = `
     <div class="stat"><span>Taskuri active</span><strong>${active}</strong></div>
     <div class="stat"><span>Deadline azi</span><strong>${dueToday}</strong></div>
