@@ -666,6 +666,29 @@ body.dark .project-card {
 .pill.blue { color: var(--blue); }
 .pill.purple { color: var(--purple); }
 
+.tag-pill {
+  padding: 4px 7px;
+  font-size: 10px;
+  line-height: 1.15;
+  color: hsl(var(--tag-hue), 68%, 34%);
+  background: hsl(var(--tag-hue), 72%, 90%);
+  border-color: hsl(var(--tag-hue), 54%, 74%);
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  min-width: 82px;
+}
+
+body.dark .tag-pill {
+  color: hsl(var(--tag-hue), 76%, 78%);
+  background: hsl(var(--tag-hue), 48%, 22%);
+  border-color: hsl(var(--tag-hue), 42%, 35%);
+}
+
 .desc {
   color: var(--muted);
   line-height: 1.48;
@@ -1360,6 +1383,23 @@ function secondsToHours(s) {
   return Math.max(0, Number(s || 0)) / 3600;
 }
 
+function tagHue(tag) {
+  const text = String(tag || '').trim().toLowerCase();
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    hash = ((hash << 5) - hash + text.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash) % 360;
+}
+
+function tagPill(tag) {
+  return `<span class="pill tag-pill" style="--tag-hue:${tagHue(tag)}">#${escapeHtml(tag)}</span>`;
+}
+
+function tagPills(tags = []) {
+  return tags.length ? `<span class="tag-list">${tags.map(tagPill).join('')}</span>` : '-';
+}
+
 function isActiveStatus(status) {
   return ACTIVE_STATUSES.includes(status);
 }
@@ -1562,7 +1602,7 @@ function renderBoard() {
 
 function taskCard(task) {
   const overdue = isOverdue(task);
-  const tags = (task.tags || []).map(t => `<span class="pill">#${escapeHtml(t)}</span>`).join('');
+  const tags = tagPills(task.tags || []);
   return `<article class="task-card" draggable="true" data-id="${task.id}">
     <div class="card-top">
       <div class="task-title">${escapeHtml(task.title)}</div>
@@ -1588,6 +1628,7 @@ function renderTasksTable() {
     <td><strong>${escapeHtml(t.title)}</strong><br><span class="desc">${escapeHtml(t.description || '')}</span></td>
     <td>${escapeHtml(clientName(t.clientId))}</td>
     <td>${escapeHtml(projectName(t.projectId))}</td>
+    <td>${tagPills(t.tags || [])}</td>
     <td><span class="pill">${t.status}</span></td>
     <td><span class="pill ${priorityClass(t.priority)}">${t.priority}</span></td>
     <td>${formatDate(t.deadline)}</td>
@@ -1596,7 +1637,7 @@ function renderTasksTable() {
     <td><button class="btn secondary" onclick="openTask('${t.id}')">Edit</button></td>
   </tr>`).join('');
   tasksTable.innerHTML = rows
-    ? `<thead><tr><th>Task</th><th>Client</th><th>Proiect</th><th>Status</th><th>Prioritate</th><th>Deadline</th><th>Timp</th><th>Sold</th><th></th></tr></thead><tbody>${rows}</tbody>`
+    ? `<thead><tr><th>Task</th><th>Client</th><th>Proiect</th><th>Taguri</th><th>Status</th><th>Prioritate</th><th>Deadline</th><th>Timp</th><th>Sold</th><th></th></tr></thead><tbody>${rows}</tbody>`
     : `<tbody><tr><td><div class="empty">Nu ai încă niciun task.</div></td></tr></tbody>`;
 }
 
@@ -1660,7 +1701,7 @@ function renderTimeLog() {
 
   const rows = entries.map(entry => {
     const task = db.tasks.find(t => t.id === entry.taskId);
-    const tags = (task?.tags || []).length ? task.tags.map(tag => `<span class="pill">#${escapeHtml(tag)}</span>`).join(' ') : '-';
+    const tags = tagPills(task?.tags || []);
     return `<tr>
       <td><strong>${escapeHtml(task?.title || 'Task șters')}</strong></td>
       <td>${escapeHtml(clientName(task?.clientId || ''))}</td>
