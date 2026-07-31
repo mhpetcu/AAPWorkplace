@@ -6,7 +6,7 @@
 <title>Creative OS - Taskuri & Clienți</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23111111'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' font-size='24' fill='white' font-family='Arial' font-weight='700'%3ECO%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&icon_names=add_task,dashboard,person_text,playlist_add_check,settings,timer,view_kanban" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&icon_names=add_task,dashboard,person_text,playlist_add_check,receipt_long,settings,timer,view_kanban" />
 <style>
 :root {
   --paper: #eef8ff;
@@ -132,6 +132,8 @@ button {
 }
 
 .sidebar {
+  display: flex;
+  flex-direction: column;
   padding: 22px;
   border-right: 1px solid var(--line);
   background:
@@ -141,6 +143,7 @@ button {
   position: sticky;
   top: 0;
   height: 100vh;
+  overflow-y: auto;
   transition: width .22s ease, padding .22s ease;
 }
 
@@ -344,10 +347,8 @@ body:not(.dark) .logo-mark {
 }
 
 .sidebar-footer {
-  position: absolute;
-  left: 22px;
-  right: 22px;
-  bottom: 22px;
+  position: static;
+  margin-top: auto;
   padding: 16px;
   border-radius: var(--radius-lg);
   background:
@@ -1388,6 +1389,222 @@ body:not(.dark) .signature-floater {
   font-size: 12px;
   line-height: 1.35;
 }
+
+/* Financial hub */
+.finance-shell { display: grid; gap: 16px; }
+
+.finance-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.finance-tabs {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(255,255,255,.1), rgba(255,255,255,.025));
+  box-shadow: var(--shadow-soft);
+}
+
+.finance-tab {
+  min-height: 38px;
+  padding: 9px 13px;
+  border-radius: 13px;
+  color: var(--muted);
+  background: transparent;
+  font-weight: 800;
+}
+
+.finance-tab.active {
+  color: #06101d;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  box-shadow: 0 8px 22px rgba(42,64,105,.2);
+}
+
+.finance-panel { display: none; }
+.finance-panel.active { display: block; }
+
+.finance-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.financial-stats {
+  grid-template-columns: repeat(5, minmax(155px, 1fr));
+}
+
+.financial-stats .stat strong { font-size: clamp(23px, 2.1vw, 30px); }
+
+.tax-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(300px, .7fr);
+  gap: 14px;
+}
+
+.finance-card {
+  background: linear-gradient(145deg, rgba(255,255,255,.11), rgba(255,255,255,.03));
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(16px) saturate(1.2);
+}
+
+.finance-card h3 {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 17px;
+}
+
+.finance-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.threshold-list { display: grid; gap: 16px; }
+.threshold-row { display: grid; gap: 7px; }
+.threshold-copy { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; }
+.threshold-copy span { color: var(--muted); }
+.threshold-copy strong { text-align: right; }
+
+.threshold-track {
+  height: 13px;
+  overflow: hidden;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.055);
+}
+
+.threshold-track > span {
+  display: block;
+  width: var(--progress, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent), var(--purple), var(--red));
+  box-shadow: 0 0 18px rgba(124,251,255,.38);
+}
+
+.tax-donut-wrap {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  align-items: center;
+  gap: 18px;
+}
+
+.tax-donut {
+  width: 150px;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: conic-gradient(var(--red) 0 var(--tax-share, 0%), rgba(255,255,255,.08) var(--tax-share, 0%) 100%);
+  box-shadow: inset 0 0 0 1px var(--line), 0 0 32px rgba(226,74,120,.14);
+}
+
+.tax-donut::before {
+  content: attr(data-label);
+  width: 105px;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--panel-solid);
+  color: var(--ink);
+  font: 800 21px 'Montserrat', sans-serif;
+}
+
+.tax-breakdown { display: grid; gap: 8px; }
+.tax-breakdown .info-row { margin: 0; padding: 8px 0 0; }
+
+.finance-callout {
+  padding: 13px 15px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line-strong);
+  background: linear-gradient(135deg, var(--accent-soft), rgba(139,92,246,.09));
+  color: var(--ink-soft);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.finance-callout.warning { border-color: rgba(182,107,0,.42); background: rgba(182,107,0,.09); }
+.finance-callout strong { color: var(--ink); }
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 12px currentColor;
+}
+
+.status-paid { color: var(--green); }
+.status-due { color: var(--yellow); }
+.status-late { color: var(--red); }
+.status-cancelled { color: var(--muted); }
+
+.table-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.table-actions .btn { min-height: 34px; padding: 7px 9px; border-radius: 10px; font-size: 11px; }
+
+.invoice-lines { grid-column: 1 / -1; display: grid; gap: 9px; }
+.invoice-line {
+  display: grid;
+  grid-template-columns: minmax(170px, 1fr) 85px 86px 115px 70px 38px;
+  gap: 7px;
+  align-items: end;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255,255,255,.035);
+}
+.invoice-line label { font-size: 10px; }
+.invoice-line .field { min-height: 39px; padding: 9px; }
+.remove-line { height: 39px; border-radius: 10px; background: rgba(226,74,120,.13); color: var(--red); font-size: 18px; }
+.invoice-total-preview { grid-column: 1 / -1; text-align: right; color: var(--ink); font: 800 15px 'Montserrat', sans-serif; }
+
+.report-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.report-kpi { padding: 14px; border-radius: var(--radius); border: 1px solid var(--line); background: rgba(255,255,255,.04); }
+.report-kpi span { display: block; color: var(--muted); font-size: 11px; text-transform: uppercase; font-weight: 800; }
+.report-kpi strong { display: block; margin-top: 7px; font: 800 22px 'Montserrat', sans-serif; }
+
+.finance-settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.finance-settings-grid .finance-card { display: grid; align-content: start; gap: 12px; }
+.checkbox-line { display: flex; grid-column: 1 / -1; align-items: center; gap: 9px; color: var(--ink-soft); }
+.checkbox-line input { width: 18px; height: 18px; accent-color: var(--accent); }
+
+.private-note { color: var(--muted); font-size: 11px; margin: 8px 0 0; }
+.expense-deductible { color: var(--green); font-weight: 800; }
+
+@media (max-width: 1100px) {
+  .financial-stats { grid-template-columns: repeat(2, 1fr); }
+  .tax-grid, .finance-settings-grid { grid-template-columns: 1fr; }
+  .invoice-line { grid-template-columns: 1fr 1fr 1fr; }
+  .invoice-line .line-description { grid-column: 1 / -1; }
+}
+
+@media (max-width: 720px) {
+  .finance-toolbar { align-items: stretch; }
+  .finance-tabs { width: 100%; overflow-x: auto; flex-wrap: nowrap; }
+  .finance-tab { white-space: nowrap; }
+  .finance-actions { width: 100%; }
+  .finance-actions .btn { flex: 1; }
+  .financial-stats, .report-summary { grid-template-columns: 1fr 1fr; }
+  .tax-donut-wrap { grid-template-columns: 1fr; justify-items: center; }
+  .tax-breakdown { width: 100%; }
+  .invoice-line { grid-template-columns: 1fr 1fr; }
+}
 </style>
 </head>
 <body>
@@ -1416,7 +1633,8 @@ body:not(.dark) .signature-floater {
       <button data-view="clients" data-label="Clienți">Clienți <span class="material-symbols-outlined" aria-hidden="true">person_text</span></button>
       <button data-view="projects" data-label="Proiecte">Proiecte <span class="material-symbols-outlined" aria-hidden="true">add_task</span></button>
       <button data-view="timer" data-label="Timer">Timer <span class="material-symbols-outlined" aria-hidden="true">timer</span></button>
-      <button id="settingsBtn" type="button">Setări <span class="material-symbols-outlined" aria-hidden="true">settings</span></button>
+      <button data-view="invoices" data-label="Facturi">Facturi <span class="material-symbols-outlined" aria-hidden="true">receipt_long</span></button>
+      <button id="settingsBtn" type="button" onclick="document.getElementById('settingsBackdrop').classList.add('active')">Setări <span class="material-symbols-outlined" aria-hidden="true">settings</span></button>
     </nav>
 
     <div class="sidebar-footer">
@@ -1590,6 +1808,116 @@ body:not(.dark) .signature-floater {
         <table class="table" id="timeLogTable"></table>
       </div>
     </section>
+
+    <section id="invoices" class="view">
+      <div class="finance-shell">
+        <div class="finance-toolbar">
+          <div class="finance-tabs" id="financeTabs">
+            <button class="finance-tab active" type="button" data-finance-panel="overview">Rezumat</button>
+            <button class="finance-tab" type="button" data-finance-panel="invoice-list">Facturi</button>
+            <button class="finance-tab" type="button" data-finance-panel="expense-list">Cheltuieli</button>
+            <button class="finance-tab" type="button" data-finance-panel="timesheet">Desfășurător</button>
+            <button class="finance-tab" type="button" data-finance-panel="fiscal-settings">Date PFA</button>
+          </div>
+          <div class="finance-actions">
+            <button class="btn secondary" id="newExpenseBtn" type="button">+ Cheltuială</button>
+            <button class="btn" id="newInvoiceBtn" type="button">+ Factură</button>
+          </div>
+        </div>
+
+        <div class="filters" style="grid-template-columns:minmax(160px,220px) minmax(170px,220px) 1fr">
+          <select class="field" id="fiscalYear"></select>
+          <select class="field" id="financeClient"><option value="">Toți clienții</option></select>
+          <div class="finance-callout" id="financeYearNote"></div>
+        </div>
+
+        <div class="finance-panel active" id="finance-overview">
+          <div class="stats financial-stats" id="financialStats"></div>
+          <div class="tax-grid">
+            <article class="finance-card">
+              <div class="finance-card-head"><h3>Plafoane & progres</h3><span class="pill">doar pentru tine</span></div>
+              <div class="threshold-list" id="thresholdBars"></div>
+              <p class="private-note">Acest panou nu apare pe factura tipărită.</p>
+            </article>
+            <article class="finance-card">
+              <div class="finance-card-head"><h3>Structura taxelor estimate</h3><span class="pill" id="taxYearPill"></span></div>
+              <div id="taxDonutContent"></div>
+            </article>
+          </div>
+          <div class="finance-card" style="margin-top:14px">
+            <div class="finance-card-head"><h3>Cashflow lunar</h3><span class="pill">încasări vs cheltuieli</span></div>
+            <div id="monthlyCashflow"></div>
+          </div>
+        </div>
+
+        <div class="finance-panel" id="finance-invoice-list">
+          <div class="finance-callout warning" style="margin-bottom:14px"><strong>PDF local ≠ RO e-Factura.</strong> Creative OS generează și păstrează factura, dar nu o transmite în SPV și nu confirmă validarea ANAF. Pentru folosire fiscală completă este necesară o integrare separată cu RO e-Factura.</div>
+          <div class="filters" style="grid-template-columns:1fr repeat(2,minmax(150px,190px))">
+            <input class="field" id="invoiceSearch" placeholder="Caută număr, client, serviciu...">
+            <select class="field" id="invoiceStatus"><option value="">Toate statusurile</option><option>Emisă</option><option>Încasată</option><option>Restantă</option><option>Anulată</option></select>
+            <select class="field" id="invoiceSort"><option value="date-desc">Cele mai recente</option><option value="date-asc">Cele mai vechi</option><option value="amount-desc">Valoare mare</option><option value="amount-asc">Valoare mică</option><option value="due-asc">Scadență apropiată</option></select>
+          </div>
+          <div class="table-card"><table class="table" id="invoicesTable"></table></div>
+        </div>
+
+        <div class="finance-panel" id="finance-expense-list">
+          <div class="filters" style="grid-template-columns:1fr repeat(2,minmax(150px,190px))">
+            <input class="field" id="expenseSearch" placeholder="Caută furnizor, document, categorie...">
+            <select class="field" id="expenseCategory"><option value="">Toate categoriile</option></select>
+            <select class="field" id="expenseSort"><option value="date-desc">Cele mai recente</option><option value="date-asc">Cele mai vechi</option><option value="amount-desc">Valoare mare</option><option value="deductible-desc">Deductibil mare</option></select>
+          </div>
+          <div class="table-card"><table class="table" id="expensesTable"></table></div>
+        </div>
+
+        <div class="finance-panel" id="finance-timesheet">
+          <div class="finance-card">
+            <div class="finance-card-head"><h3>Desfășurător activitate</h3><button class="btn secondary" type="button" id="printTimesheetBtn">Tipărește / PDF</button></div>
+            <div class="filters" style="grid-template-columns:repeat(4,1fr)">
+              <input class="field" id="reportFrom" type="date">
+              <input class="field" id="reportTo" type="date">
+              <select class="field" id="reportClient"><option value="">Toți clienții</option></select>
+              <select class="field" id="reportProject"><option value="">Toate proiectele</option></select>
+            </div>
+            <div id="timesheetReport"></div>
+          </div>
+        </div>
+
+        <div class="finance-panel" id="finance-fiscal-settings">
+          <form id="fiscalSettingsForm" class="finance-settings-grid">
+            <article class="finance-card">
+              <h3>Date emitent PFA</h3>
+              <label>Denumire / nume complet <input class="field" name="businessName"></label>
+              <label>CUI / CIF <input class="field" name="taxId"></label>
+              <label>Nr. Registrul Comerțului <input class="field" name="registryNo"></label>
+              <label>Sediu profesional <textarea class="field" name="address"></textarea></label>
+              <label>IBAN <input class="field" name="iban"></label>
+              <label>Bancă <input class="field" name="bank"></label>
+              <label>Email <input class="field" name="email" type="email"></label>
+              <label>Telefon <input class="field" name="phone"></label>
+              <label>Serie facturi <input class="field" name="invoiceSeries" placeholder="COS"></label>
+              <label class="checkbox-line"><input type="checkbox" name="vatRegistered"> Înregistrat în scopuri de TVA</label>
+            </article>
+            <article class="finance-card">
+              <h3>Calculator fiscal</h3>
+              <div class="form-grid">
+                <label>An fiscal <input class="field" name="taxYear" type="number"></label>
+                <label>Salariu minim de referință <input class="field" name="minimumSalary" type="number" step="1"></label>
+                <label>CAS % <input class="field" name="casRate" type="number" step="0.1"></label>
+                <label>CASS % <input class="field" name="cassRate" type="number" step="0.1"></label>
+                <label>Impozit venit % <input class="field" name="incomeTaxRate" type="number" step="0.1"></label>
+                <label>Plafon TVA (RON) <input class="field" name="vatThreshold" type="number" step="1"></label>
+                <label>Bază CAS aleasă (RON) <input class="field" name="chosenCasBase" type="number" step="1" placeholder="automat, minim legal"></label>
+                <label>CASS maxim (salarii) <input class="field" name="cassMaxSalaries" type="number" step="1"></label>
+                <label class="checkbox-line"><input type="checkbox" name="voluntaryCas"> Plătesc CAS opțional cât timp venitul net este sub plafonul obligatoriu</label>
+                <label class="checkbox-line"><input type="checkbox" name="cassMinimumExempt"> Exceptat de diferența până la 6 salarii (ex. salarii/pensie/excepție legală)</label>
+              </div>
+              <div class="finance-callout warning"><strong>Estimare, nu declarație fiscală.</strong> Verifică rezultatul cu un contabil înainte de depunere. Setările sunt păstrate local.</div>
+              <button class="btn" type="submit">Salvează datele PFA</button>
+            </article>
+          </form>
+        </div>
+      </div>
+    </section>
   </main>
 </div>
 
@@ -1600,7 +1928,7 @@ body:not(.dark) .signature-floater {
   <div class="modal">
     <div class="modal-head">
       <h3>Setări</h3>
-      <button class="close" id="closeSettings" type="button">×</button>
+      <button class="close" id="closeSettings" type="button" onclick="document.getElementById('settingsBackdrop').classList.remove('active')">×</button>
     </div>
     <div class="settings-grid">
       <button class="settings-action" id="exportBtn" type="button">
@@ -1637,6 +1965,13 @@ const ACTIVE_STATUSES = ['Neînceput', 'În lucru', 'Feedback'];
 const DEFAULT_EUR_RATE = 5.2222;
 const BNR_RATE_URL = 'https://www.bnr.ro/nbrfxrates.xml';
 const FRANKFURTER_RATE_URL = 'https://api.frankfurter.dev/v1/latest?base=EUR&symbols=RON';
+const EXPENSE_CATEGORIES = ['Software & abonamente', 'Echipamente', 'Telefon & internet', 'Marketing', 'Transport', 'Spațiu de lucru', 'Servicii profesionale', 'Comisioane bancare', 'Educație', 'Protocol', 'Altele'];
+const DEFAULT_FISCAL = {
+  businessName: '', taxId: '', registryNo: '', address: '', iban: '', bank: '', email: '', phone: '',
+  invoiceSeries: 'COS', vatRegistered: false, taxYear: 2026, minimumSalary: 4050,
+  casRate: 25, cassRate: 10, incomeTaxRate: 10, vatThreshold: 395000,
+  chosenCasBase: 0, voluntaryCas: false, cassMaxSalaries: 72, cassMinimumExempt: false
+};
 
 function uid() {
   if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
@@ -1660,13 +1995,16 @@ function toast(message) {
   setTimeout(() => item.remove(), 2600);
 }
 
-const APP_STORAGE_VERSION = '4';
+const APP_STORAGE_VERSION = '5';
 
 const seed = {
   clients: [],
   projects: [],
   tasks: [],
-  timeEntries: []
+  timeEntries: [],
+  invoices: [],
+  expenses: [],
+  fiscal: cloneData(DEFAULT_FISCAL)
 };
 
 let db = loadDb();
@@ -1716,6 +2054,26 @@ function normalizeDb(data) {
     date: entry.date || new Date().toISOString(),
     source: entry.source || 'manual'
   })).filter(entry => entry.taskId && entry.seconds > 0) : [];
+  data.invoices = Array.isArray(data.invoices) ? data.invoices.map(invoice => ({
+    ...invoice,
+    lines: Array.isArray(invoice.lines) && invoice.lines.length ? invoice.lines.map(line => ({
+      description: line.description || 'Servicii',
+      quantity: Number(line.quantity || 0),
+      unit: line.unit || 'ore',
+      unitPrice: Number(line.unitPrice || 0),
+      vatRate: Number(line.vatRate || 0)
+    })) : [],
+    paidAmount: Number(invoice.paidAmount || 0),
+    exchangeRate: Number(invoice.exchangeRate || 1),
+    createdAt: Number(invoice.createdAt || Date.now())
+  })) : [];
+  data.expenses = Array.isArray(data.expenses) ? data.expenses.map(expense => ({
+    ...expense,
+    amount: Number(expense.amount || 0),
+    vatAmount: Number(expense.vatAmount || 0),
+    deductiblePercent: Math.min(100, Math.max(0, Number(expense.deductiblePercent ?? 100)))
+  })) : [];
+  data.fiscal = { ...DEFAULT_FISCAL, ...(data.fiscal || {}) };
   return data;
 }
 
@@ -2053,17 +2411,18 @@ function render() {
   renderProjects();
   renderTimerTaskSelect();
   renderTimeLog();
+  renderFinance();
 }
 
 function populateSelects() {
-  const clientSelects = [filterClient, boardClient, taskClient, timerClient];
+  const clientSelects = [filterClient, boardClient, taskClient, timerClient, financeClient, reportClient];
   clientSelects.forEach(sel => {
     const old = sel.value;
     sel.innerHTML = '<option value="">Toți clienții</option>' + db.clients.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
     sel.value = old;
   });
 
-  const projectSelects = [taskProject, timerProject];
+  const projectSelects = [taskProject, timerProject, reportProject];
   projectSelects.forEach(sel => {
     const old = sel.value;
     sel.innerHTML = '<option value="">Toate proiectele</option>' + db.projects.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
@@ -2279,6 +2638,479 @@ function renderTimeLog() {
   timeLogTable.innerHTML = `<thead><tr><th>Task</th><th>Client</th><th>Proiect</th><th>Tag</th><th>Timp</th><th>Dată & oră</th><th>Sursă</th><th></th></tr></thead><tbody>${rows}</tbody>`;
 }
 
+function money(value, currency = 'RON') {
+  return new Intl.NumberFormat('ro-RO', {
+    style: 'currency', currency, minimumFractionDigits: 2, maximumFractionDigits: 2
+  }).format(Number(value || 0));
+}
+
+function financeMoney(ron) {
+  const value = finance.currency === 'EUR'
+    ? Number(ron || 0) / Number(finance.eurRate || DEFAULT_EUR_RATE)
+    : Number(ron || 0);
+  return money(value, finance.currency);
+}
+
+function invoiceSubtotal(invoice) {
+  return (invoice.lines || []).reduce((sum, line) => sum + Number(line.quantity || 0) * Number(line.unitPrice || 0), 0);
+}
+
+function invoiceVat(invoice) {
+  return (invoice.lines || []).reduce((sum, line) => sum + Number(line.quantity || 0) * Number(line.unitPrice || 0) * Number(line.vatRate || 0) / 100, 0);
+}
+
+function invoiceTotal(invoice) {
+  return invoiceSubtotal(invoice) + invoiceVat(invoice);
+}
+
+function invoiceExchangeRate(invoice) {
+  return invoice.currency === 'EUR' ? Number(invoice.exchangeRate || finance.eurRate || DEFAULT_EUR_RATE) : 1;
+}
+
+function invoiceTotalRon(invoice) {
+  return invoiceTotal(invoice) * invoiceExchangeRate(invoice);
+}
+
+function invoicePaidRon(invoice) {
+  return Math.min(Number(invoice.paidAmount || 0), invoiceTotal(invoice)) * invoiceExchangeRate(invoice);
+}
+
+function invoiceRevenueRon(invoice) {
+  const total = invoiceTotal(invoice);
+  if (!total) return 0;
+  const paidRatio = Math.min(1, Number(invoice.paidAmount || 0) / total);
+  return invoiceSubtotal(invoice) * paidRatio * invoiceExchangeRate(invoice);
+}
+
+function invoiceStatusValue(invoice) {
+  if (invoice.status === 'Anulată') return 'Anulată';
+  if (Number(invoice.paidAmount || 0) >= invoiceTotal(invoice) - .005 && invoiceTotal(invoice) > 0) return 'Încasată';
+  if (invoice.dueDate && invoice.dueDate < currentDateValue()) return 'Restantă';
+  return invoice.status === 'Restantă' ? 'Restantă' : 'Emisă';
+}
+
+function invoiceStatusClass(status) {
+  return status === 'Încasată' ? 'status-paid' : status === 'Restantă' ? 'status-late' : status === 'Anulată' ? 'status-cancelled' : 'status-due';
+}
+
+function expenseDeductibleRon(expense) {
+  const fiscalBase = db.fiscal.vatRegistered ? Math.max(0, Number(expense.amount || 0) - Number(expense.vatAmount || 0)) : Number(expense.amount || 0);
+  return fiscalBase * Number(expense.deductiblePercent ?? 100) / 100;
+}
+
+function selectedFiscalYear() {
+  return Number(fiscalYear.value || db.fiscal.taxYear || new Date().getFullYear());
+}
+
+function dateInYear(date, year) {
+  return String(date || '').slice(0, 4) === String(year);
+}
+
+function invoicesForYear(year = selectedFiscalYear()) {
+  return db.invoices.filter(invoice => dateInYear(invoice.issueDate, year));
+}
+
+function receiptsForYear(year = selectedFiscalYear()) {
+  return db.invoices.filter(invoice => invoice.status !== 'Anulată' && dateInYear(invoice.paymentDate, year) && Number(invoice.paidAmount || 0) > 0);
+}
+
+function expensesForYear(year = selectedFiscalYear()) {
+  return db.expenses.filter(expense => dateInYear(expense.date, year));
+}
+
+function calculateTaxes(year = selectedFiscalYear()) {
+  const clientFilter = financeClient.value;
+  const receivedInvoices = receiptsForYear(year).filter(invoice => !clientFilter || invoice.clientId === clientFilter);
+  const yearExpenses = expensesForYear(year).filter(expense => !clientFilter || expense.clientId === clientFilter);
+  const issuedInvoices = invoicesForYear(year).filter(invoice => invoice.status !== 'Anulată' && (!clientFilter || invoice.clientId === clientFilter));
+  const grossRevenue = receivedInvoices.reduce((sum, invoice) => sum + invoiceRevenueRon(invoice), 0);
+  const cashReceived = receivedInvoices.reduce((sum, invoice) => sum + invoicePaidRon(invoice), 0);
+  const deductibleExpenses = yearExpenses.reduce((sum, expense) => sum + expenseDeductibleRon(expense), 0);
+  const allExpenses = yearExpenses.reduce((sum, expense) => sum + Number(expense.amount || 0), 0);
+  const netIncome = Math.max(0, grossRevenue - deductibleExpenses);
+  const minSalary = Number(db.fiscal.minimumSalary || 4050);
+  const cas12 = minSalary * 12;
+  const cas24 = minSalary * 24;
+  const chosen = Number(db.fiscal.chosenCasBase || 0);
+  const casMandatory = netIncome >= cas12;
+  const casVoluntary = !casMandatory && Boolean(db.fiscal.voluntaryCas);
+  let casBase = 0;
+  if (netIncome >= cas24) casBase = Math.max(cas24, chosen);
+  else if (netIncome >= cas12) casBase = Math.max(cas12, chosen);
+  else if (casVoluntary) casBase = Math.max(cas12, chosen);
+  const cas = casBase * Number(db.fiscal.casRate || 25) / 100;
+  const cassMinimum = minSalary * 6;
+  const cassMaximum = minSalary * Number(db.fiscal.cassMaxSalaries || 72);
+  const naturalCassBase = Math.min(netIncome, cassMaximum);
+  const cassBase = netIncome > 0 && netIncome < cassMinimum && !db.fiscal.cassMinimumExempt ? cassMinimum : naturalCassBase;
+  const cass = cassBase * Number(db.fiscal.cassRate || 10) / 100;
+  const cassDeductible = naturalCassBase * Number(db.fiscal.cassRate || 10) / 100;
+  const taxableIncome = Math.max(0, netIncome - cas - cassDeductible);
+  const incomeTax = taxableIncome * Number(db.fiscal.incomeTaxRate || 10) / 100;
+  const totalTaxes = cas + cass + incomeTax;
+  const netAfterTax = netIncome - totalTaxes;
+  const taxableTurnover = issuedInvoices.reduce((sum, invoice) => sum + invoiceSubtotal(invoice) * invoiceExchangeRate(invoice), 0);
+  return { grossRevenue, cashReceived, deductibleExpenses, allExpenses, netIncome, cas12, cas24, casMandatory, casVoluntary, casBase, cas, cassMinimum, cassMaximum, cassBase, cass, cassDeductible, taxableIncome, incomeTax, totalTaxes, netAfterTax, taxableTurnover };
+}
+
+function renderFinance() {
+  const years = new Set([new Date().getFullYear(), Number(db.fiscal.taxYear || 2026)]);
+  db.invoices.forEach(item => years.add(Number(String(item.issueDate || '').slice(0, 4))));
+  db.expenses.forEach(item => years.add(Number(String(item.date || '').slice(0, 4))));
+  const oldYear = Number(fiscalYear.value || db.fiscal.taxYear || new Date().getFullYear());
+  fiscalYear.innerHTML = [...years].filter(Boolean).sort((a, b) => b - a).map(year => `<option value="${year}">An fiscal ${year}</option>`).join('');
+  fiscalYear.value = years.has(oldYear) ? String(oldYear) : String(db.fiscal.taxYear || new Date().getFullYear());
+
+  const oldCategory = expenseCategory.value;
+  expenseCategory.innerHTML = '<option value="">Toate categoriile</option>' + EXPENSE_CATEGORIES.map(category => `<option>${escapeHtml(category)}</option>`).join('');
+  expenseCategory.value = oldCategory;
+
+  const year = selectedFiscalYear();
+  const tax = calculateTaxes(year);
+  financeYearNote.innerHTML = `<strong>${year} · sistem real</strong> — veniturile sunt recunoscute la data încasării, iar cheltuielile la data documentului.`;
+  financialStats.innerHTML = `
+    <div class="stat"><span>Încasări fiscale</span><strong>${financeMoney(tax.grossRevenue)}</strong></div>
+    <div class="stat"><span>Cheltuieli deductibile</span><strong>${financeMoney(tax.deductibleExpenses)}</strong></div>
+    <div class="stat"><span>Venit net</span><strong>${financeMoney(tax.netIncome)}</strong></div>
+    <div class="stat"><span>Taxe estimate</span><strong>${financeMoney(tax.totalTaxes)}</strong></div>
+    <div class="stat"><span>Rămâne după taxe</span><strong>${financeMoney(tax.netAfterTax)}</strong></div>`;
+  renderThresholds(tax);
+  renderTaxDonut(tax, year);
+  renderMonthlyCashflow(year);
+  renderInvoicesTable();
+  renderExpensesTable();
+  renderTimesheetReport();
+  populateFiscalSettings();
+}
+
+function thresholdRow(label, current, target, suffix = '') {
+  const ratio = target > 0 ? current / target : 0;
+  const remaining = Math.max(0, target - current);
+  const state = current >= target ? 'atins' : `${financeMoney(remaining)} până la prag`;
+  return `<div class="threshold-row">
+    <div class="threshold-copy"><span>${escapeHtml(label)}</span><strong>${financeMoney(current)} / ${financeMoney(target)} ${suffix}</strong></div>
+    <div class="threshold-track"><span style="--progress:${Math.min(100, ratio * 100).toFixed(1)}%"></span></div>
+    <div class="progress-text">${state}${ratio > 1 ? ` · depășit cu ${financeMoney(current - target)}` : ''}</div>
+  </div>`;
+}
+
+function renderThresholds(tax) {
+  thresholdBars.innerHTML =
+    thresholdRow('CAS · primul prag (12 salarii)', tax.netIncome, tax.cas12) +
+    thresholdRow('CAS · prag superior (24 salarii)', tax.netIncome, tax.cas24) +
+    thresholdRow(`CASS · plafon maxim (${Number(db.fiscal.cassMaxSalaries || 72)} salarii)`, tax.netIncome, tax.cassMaximum) +
+    thresholdRow('Plafon înregistrare TVA', tax.taxableTurnover, Number(db.fiscal.vatThreshold || 395000));
+}
+
+function renderTaxDonut(tax, year) {
+  const rawShare = tax.grossRevenue > 0 ? tax.totalTaxes / tax.grossRevenue * 100 : 0;
+  const share = Math.min(100, rawShare);
+  taxYearPill.textContent = year;
+  const casStatus = tax.casMandatory ? 'obligatoriu' : tax.casVoluntary ? 'opțional activ' : 'opțional, neactivat';
+  taxDonutContent.innerHTML = `<div class="tax-donut-wrap">
+    <div class="tax-donut" style="--tax-share:${share.toFixed(1)}%" data-label="${rawShare.toFixed(1)}%"></div>
+    <div class="tax-breakdown">
+      <div class="info-row"><span>CAS (${Number(db.fiscal.casRate || 25)}% · ${casStatus})</span><strong>${financeMoney(tax.cas)}</strong></div>
+      <div class="info-row"><span>CASS (${Number(db.fiscal.cassRate || 10)}%)</span><strong>${financeMoney(tax.cass)}</strong></div>
+      <div class="info-row"><span>Impozit (${Number(db.fiscal.incomeTaxRate || 10)}%)</span><strong>${financeMoney(tax.incomeTax)}</strong></div>
+      <div class="info-row"><span>Total estimat</span><strong>${financeMoney(tax.totalTaxes)}</strong></div>
+    </div>
+  </div>
+  <div class="finance-callout warning" style="margin-top:16px"><strong>Rezervă recomandată acum: ${financeMoney(tax.totalTaxes)}.</strong> CAS este ${casStatus}; peste primul prag devine automat obligatoriu. Diferența CASS până la minimul de 6 salarii, dacă se aplică, nu este tratată ca deductibilă la impozit.</div>`;
+}
+
+function renderMonthlyCashflow(year) {
+  const months = Array.from({ length: 12 }, (_, index) => ({
+    label: new Date(year, index, 1).toLocaleDateString('ro-RO', { month: 'short' }), received: 0, spent: 0
+  }));
+  receiptsForYear(year).forEach(invoice => { months[new Date(invoice.paymentDate + 'T12:00:00').getMonth()].received += invoicePaidRon(invoice); });
+  expensesForYear(year).forEach(expense => { months[new Date(expense.date + 'T12:00:00').getMonth()].spent += Number(expense.amount || 0); });
+  const max = Math.max(1, ...months.flatMap(month => [month.received, month.spent]));
+  monthlyCashflow.innerHTML = `<div style="display:grid;grid-template-columns:repeat(12,minmax(44px,1fr));gap:8px;min-width:720px;align-items:end;height:230px;overflow:hidden">
+    ${months.map(month => `<div title="${escapeAttr(month.label)} · încasări ${financeMoney(month.received)} · cheltuieli ${financeMoney(month.spent)}" style="height:100%;display:grid;grid-template-rows:1fr auto;gap:7px;align-items:end">
+      <div style="height:100%;display:flex;gap:4px;align-items:end;justify-content:center;border-bottom:1px solid var(--line)">
+        <span style="width:38%;min-height:${month.received ? 3 : 0}px;height:${month.received / max * 100}%;border-radius:7px 7px 2px 2px;background:linear-gradient(180deg,var(--accent),var(--green))"></span>
+        <span style="width:38%;min-height:${month.spent ? 3 : 0}px;height:${month.spent / max * 100}%;border-radius:7px 7px 2px 2px;background:linear-gradient(180deg,var(--red),var(--purple))"></span>
+      </div><strong style="font-size:10px;text-align:center;color:var(--muted);text-transform:uppercase">${escapeHtml(month.label)}</strong>
+    </div>`).join('')}
+  </div><div class="meta" style="justify-content:center"><span class="pill green">Încasări</span><span class="pill red">Cheltuieli</span></div>`;
+  monthlyCashflow.parentElement.style.overflowX = 'auto';
+}
+
+function renderInvoicesTable() {
+  const year = selectedFiscalYear();
+  const q = invoiceSearch.value.trim().toLowerCase();
+  let invoices = invoicesForYear(year).filter(invoice => {
+    const status = invoiceStatusValue(invoice);
+    const haystack = [invoice.series, invoice.number, clientName(invoice.clientId), ...(invoice.lines || []).map(line => line.description)].join(' ').toLowerCase();
+    return (!financeClient.value || invoice.clientId === financeClient.value) && (!invoiceStatus.value || status === invoiceStatus.value) && (!q || haystack.includes(q));
+  });
+  invoices.sort((a, b) => {
+    if (invoiceSort.value === 'date-asc') return String(a.issueDate).localeCompare(String(b.issueDate));
+    if (invoiceSort.value === 'amount-desc') return invoiceTotalRon(b) - invoiceTotalRon(a);
+    if (invoiceSort.value === 'amount-asc') return invoiceTotalRon(a) - invoiceTotalRon(b);
+    if (invoiceSort.value === 'due-asc') return String(a.dueDate || '9999').localeCompare(String(b.dueDate || '9999'));
+    return String(b.issueDate).localeCompare(String(a.issueDate));
+  });
+  if (!invoices.length) {
+    invoicesTable.innerHTML = `<tbody><tr><td><div class="empty"><strong>Nicio factură pentru selecția curentă.</strong><br>Adaugă prima factură și o vei vedea aici.</div></td></tr></tbody>`;
+    return;
+  }
+  invoicesTable.innerHTML = `<thead><tr><th>Factură</th><th>Client</th><th>Emisă / scadență</th><th>Total</th><th>Încasat</th><th>Status</th><th></th></tr></thead><tbody>${invoices.map(invoice => {
+    const status = invoiceStatusValue(invoice);
+    const originalTotal = money(invoiceTotal(invoice), invoice.currency || 'RON');
+    const originalPaid = money(invoice.paidAmount || 0, invoice.currency || 'RON');
+    const showOriginal = (invoice.currency || 'RON') !== finance.currency;
+    return `<tr>
+      <td><strong>${escapeHtml(invoice.series || '')}-${escapeHtml(invoice.number || '')}</strong><br><span class="desc">${escapeHtml((invoice.lines || []).map(line => line.description).join(', '))}</span></td>
+      <td>${escapeHtml(clientName(invoice.clientId))}</td>
+      <td>${formatDate(invoice.issueDate)}<br><span class="desc">scad. ${formatDate(invoice.dueDate)}</span></td>
+      <td><strong>${financeMoney(invoiceTotalRon(invoice))}</strong>${showOriginal ? `<br><span class="desc">original: ${originalTotal}</span>` : ''}</td>
+      <td>${financeMoney(invoicePaidRon(invoice))}${showOriginal ? `<br><span class="desc">original: ${originalPaid}</span>` : ''}</td>
+      <td><span class="${invoiceStatusClass(status)}"><span class="status-dot"></span>${status}</span></td>
+      <td><div class="table-actions"><button class="btn secondary" onclick="printInvoice('${invoice.id}')">PDF</button>${status !== 'Încasată' && status !== 'Anulată' ? `<button class="btn secondary" onclick="markInvoicePaid('${invoice.id}')">Încasează</button>` : ''}<button class="btn secondary" onclick="openInvoice('${invoice.id}')">Edit</button></div></td>
+    </tr>`;
+  }).join('')}</tbody>`;
+}
+
+function renderExpensesTable() {
+  const year = selectedFiscalYear();
+  const q = expenseSearch.value.trim().toLowerCase();
+  let expenses = expensesForYear(year).filter(expense => {
+    const haystack = [expense.supplier, expense.documentNo, expense.category, expense.description].join(' ').toLowerCase();
+    return (!financeClient.value || expense.clientId === financeClient.value) && (!expenseCategory.value || expense.category === expenseCategory.value) && (!q || haystack.includes(q));
+  });
+  expenses.sort((a, b) => {
+    if (expenseSort.value === 'date-asc') return String(a.date).localeCompare(String(b.date));
+    if (expenseSort.value === 'amount-desc') return Number(b.amount || 0) - Number(a.amount || 0);
+    if (expenseSort.value === 'deductible-desc') return expenseDeductibleRon(b) - expenseDeductibleRon(a);
+    return String(b.date).localeCompare(String(a.date));
+  });
+  if (!expenses.length) {
+    expensesTable.innerHTML = `<tbody><tr><td><div class="empty"><strong>Nicio cheltuială înregistrată.</strong><br>Poți adăuga abonamente, echipamente, servicii și alte documente deductibile.</div></td></tr></tbody>`;
+    return;
+  }
+  expensesTable.innerHTML = `<thead><tr><th>Data</th><th>Furnizor / document</th><th>Categorie</th><th>Descriere</th><th>Valoare</th><th>Deductibil</th><th></th></tr></thead><tbody>${expenses.map(expense => `<tr>
+    <td>${formatDate(expense.date)}</td>
+    <td><strong>${escapeHtml(expense.supplier || '-')}</strong><br><span class="desc">${escapeHtml(expense.documentNo || 'fără număr')}</span></td>
+    <td><span class="pill">${escapeHtml(expense.category || 'Altele')}</span></td>
+    <td>${escapeHtml(expense.description || '-')}</td>
+    <td>${financeMoney(expense.amount)}</td>
+    <td><span class="expense-deductible">${financeMoney(expenseDeductibleRon(expense))}</span><br><span class="desc">${Number(expense.deductiblePercent ?? 100)}%</span></td>
+    <td><button class="btn secondary" onclick="openExpense('${expense.id}')">Edit</button></td>
+  </tr>`).join('')}</tbody>`;
+}
+
+function reportEntries() {
+  const from = reportFrom.value;
+  const to = reportTo.value;
+  return db.timeEntries.filter(entry => {
+    const date = timeEntryDateValue(entry);
+    const task = timeEntryTask(entry);
+    return (!from || date >= from) && (!to || date <= to) && (!reportClient.value || task?.clientId === reportClient.value) && (!reportProject.value || task?.projectId === reportProject.value);
+  });
+}
+
+function renderTimesheetReport() {
+  const year = selectedFiscalYear();
+  if (!reportFrom.value) reportFrom.value = `${year}-01-01`;
+  if (!reportTo.value) reportTo.value = `${year}-12-31`;
+  const entries = reportEntries();
+  const groups = new Map();
+  entries.forEach(entry => {
+    const task = timeEntryTask(entry);
+    const key = `${task?.clientId || ''}|${task?.projectId || ''}|${task?.id || entry.taskId}`;
+    const current = groups.get(key) || { client: clientName(task?.clientId || ''), project: projectName(task?.projectId || ''), task: task?.title || 'Task șters', seconds: 0, sessions: 0, value: 0 };
+    current.seconds += Number(entry.seconds || 0);
+    current.sessions += 1;
+    current.value += secondsToHours(entry.seconds) * Number(task?.hourlyRate || 0);
+    groups.set(key, current);
+  });
+  const rows = [...groups.values()].sort((a, b) => a.client.localeCompare(b.client, 'ro') || a.project.localeCompare(b.project, 'ro'));
+  const totalSeconds = entries.reduce((sum, entry) => sum + Number(entry.seconds || 0), 0);
+  const totalValue = rows.reduce((sum, row) => sum + row.value, 0);
+  timesheetReport.innerHTML = `<div class="report-summary">
+    <div class="report-kpi"><span>Perioadă</span><strong>${entries.length ? `${formatDate(reportFrom.value)} – ${formatDate(reportTo.value)}` : '—'}</strong></div>
+    <div class="report-kpi"><span>Ore lucrate</span><strong>${secondsToHm(totalSeconds)}</strong></div>
+    <div class="report-kpi"><span>Sesiuni</span><strong>${entries.length}</strong></div>
+    <div class="report-kpi"><span>Valoare estimată</span><strong>${financeMoney(totalValue)}</strong></div>
+  </div>${rows.length ? `<div class="table-card"><table class="table"><thead><tr><th>Client</th><th>Proiect</th><th>Task</th><th>Sesiuni</th><th>Ore</th><th>Valoare</th></tr></thead><tbody>${rows.map(row => `<tr><td>${escapeHtml(row.client)}</td><td>${escapeHtml(row.project)}</td><td><strong>${escapeHtml(row.task)}</strong></td><td>${row.sessions}</td><td>${secondsToHm(row.seconds)}</td><td>${financeMoney(row.value)}</td></tr>`).join('')}</tbody></table></div>` : `<div class="empty">Nu există timp înregistrat pentru perioada și filtrele selectate.</div>`}`;
+}
+
+function nextInvoiceNumber(series = db.fiscal.invoiceSeries || 'COS') {
+  const numbers = db.invoices.filter(invoice => invoice.series === series).map(invoice => Number(invoice.number || 0)).filter(Number.isFinite);
+  return String((numbers.length ? Math.max(...numbers) : 0) + 1).padStart(4, '0');
+}
+
+function invoiceLineHtml(line = {}, index = 0) {
+  return `<div class="invoice-line" data-line-index="${index}">
+    <label class="line-description">Descriere <input class="field" data-line="description" required value="${escapeAttr(line.description || '')}" placeholder="Servicii design / consultanță"></label>
+    <label>Cant. <input class="field" data-line="quantity" type="number" min="0" step="0.01" value="${Number(line.quantity ?? 1)}"></label>
+    <label>UM <select class="field" data-line="unit">${['ore','buc','serviciu','proiect'].map(unit => `<option ${line.unit === unit ? 'selected' : ''}>${unit}</option>`).join('')}</select></label>
+    <label>Preț unitar <input class="field" data-line="unitPrice" type="number" min="0" step="0.01" value="${Number(line.unitPrice || 0)}"></label>
+    <label>TVA % <input class="field" data-line="vatRate" type="number" min="0" step="1" value="${Number(line.vatRate || 0)}"></label>
+    <button class="remove-line" type="button" title="Șterge linia">×</button>
+  </div>`;
+}
+
+function invoiceForm(invoice = {}) {
+  const series = invoice.series || db.fiscal.invoiceSeries || 'COS';
+  const lines = invoice.lines?.length ? invoice.lines : [{ description: '', quantity: 1, unit: 'ore', unitPrice: 0, vatRate: db.fiscal.vatRegistered ? 21 : 0 }];
+  const currency = invoice.currency || 'RON';
+  return `<div class="form-grid">
+    <label>Client <select class="field" name="clientId" required><option value="">Alege client</option>${db.clients.map(client => `<option value="${client.id}" ${invoice.clientId === client.id ? 'selected' : ''}>${escapeHtml(client.name)}</option>`).join('')}</select></label>
+    <label>Proiect <select class="field" name="projectId"><option value="">Fără proiect</option>${db.projects.map(project => `<option value="${project.id}" ${invoice.projectId === project.id ? 'selected' : ''}>${escapeHtml(project.name)}</option>`).join('')}</select></label>
+    <label>Serie <input class="field" name="series" required value="${escapeAttr(series)}"></label>
+    <label>Număr <input class="field" name="number" required value="${escapeAttr(invoice.number || nextInvoiceNumber(series))}"></label>
+    <label>Data emiterii <input class="field" name="issueDate" type="date" required value="${escapeAttr(invoice.issueDate || currentDateValue())}"></label>
+    <label>Scadență <input class="field" name="dueDate" type="date" value="${escapeAttr(invoice.dueDate || todayPlus(14))}"></label>
+    <label>Monedă <select class="field" name="currency"><option ${currency === 'RON' ? 'selected' : ''}>RON</option><option ${currency === 'EUR' ? 'selected' : ''}>EUR</option></select></label>
+    <label>Curs EUR/RON <input class="field" name="exchangeRate" type="number" min="0" step="0.0001" value="${Number(invoice.exchangeRate || finance.eurRate || DEFAULT_EUR_RATE)}"></label>
+    <label>Status <select class="field" name="status">${['Emisă','Încasată','Restantă','Anulată'].map(status => `<option ${invoiceStatusValue(invoice) === status ? 'selected' : ''}>${status}</option>`).join('')}</select></label>
+    <label>Sumă încasată <input class="field" name="paidAmount" type="number" min="0" step="0.01" value="${Number(invoice.paidAmount || 0)}"></label>
+    <label>Data încasării <input class="field" name="paymentDate" type="date" value="${escapeAttr(invoice.paymentDate || '')}"></label>
+    <label>Metodă plată <select class="field" name="paymentMethod">${['Transfer bancar','Card','Numerar','Altă metodă'].map(method => `<option ${invoice.paymentMethod === method ? 'selected' : ''}>${method}</option>`).join('')}</select></label>
+    <div class="invoice-lines"><div class="finance-card-head"><h3>Linii factură</h3><button class="btn secondary" id="addInvoiceLineBtn" type="button">+ Linie</button></div><div id="invoiceLines">${lines.map(invoiceLineHtml).join('')}</div></div>
+    <div class="invoice-total-preview" id="invoiceTotalPreview"></div>
+    <label class="full">Note pe factură <textarea class="field" name="notes">${escapeHtml(invoice.notes || '')}</textarea></label>
+  </div>`;
+}
+
+function collectInvoiceLines() {
+  return [...modalForm.querySelectorAll('.invoice-line')].map(row => ({
+    description: row.querySelector('[data-line="description"]').value.trim(),
+    quantity: Number(row.querySelector('[data-line="quantity"]').value || 0),
+    unit: row.querySelector('[data-line="unit"]').value,
+    unitPrice: Number(row.querySelector('[data-line="unitPrice"]').value || 0),
+    vatRate: Number(row.querySelector('[data-line="vatRate"]').value || 0)
+  })).filter(line => line.description && line.quantity > 0);
+}
+
+function syncInvoiceTotalPreview() {
+  if (!document.getElementById('invoiceTotalPreview')) return;
+  const invoice = { lines: collectInvoiceLines(), currency: modalForm.elements.currency?.value || 'RON' };
+  invoiceTotalPreview.textContent = `Total: ${money(invoiceTotal(invoice), invoice.currency)}`;
+}
+
+function bindInvoiceLines() {
+  const bindRemove = () => modalForm.querySelectorAll('.remove-line').forEach(button => button.onclick = () => {
+    if (modalForm.querySelectorAll('.invoice-line').length === 1) return toast('Factura trebuie să aibă cel puțin o linie.');
+    button.closest('.invoice-line').remove();
+    syncInvoiceTotalPreview();
+  });
+  addInvoiceLineBtn.onclick = () => {
+    invoiceLines.insertAdjacentHTML('beforeend', invoiceLineHtml({ quantity: 1, unit: 'ore', vatRate: db.fiscal.vatRegistered ? 21 : 0 }, invoiceLines.children.length));
+    bindRemove();
+    syncInvoiceTotalPreview();
+  };
+  modalForm.addEventListener('input', syncInvoiceTotalPreview);
+  bindRemove();
+  syncInvoiceTotalPreview();
+}
+
+function openInvoice(id = null) {
+  const invoice = id ? db.invoices.find(item => item.id === id) : {};
+  openModal(id ? 'Editează factura' : 'Factură nouă', invoiceForm(invoice), fd => {
+    const lines = collectInvoiceLines();
+    if (!lines.length) { toast('Adaugă cel puțin o linie validă.'); return false; }
+    const duplicate = db.invoices.some(current => current.id !== id && current.series === fd.get('series').trim() && String(current.number) === fd.get('number').trim());
+    if (duplicate) { toast('Există deja o factură cu această serie și acest număr.'); return false; }
+    const item = {
+      id: id || uid(), clientId: fd.get('clientId'), projectId: fd.get('projectId'),
+      series: fd.get('series').trim(), number: fd.get('number').trim(), issueDate: fd.get('issueDate'), dueDate: fd.get('dueDate'),
+      currency: fd.get('currency'), exchangeRate: Number(fd.get('exchangeRate') || 1), status: fd.get('status'),
+      paidAmount: Number(fd.get('paidAmount') || 0), paymentDate: fd.get('paymentDate'), paymentMethod: fd.get('paymentMethod'),
+      notes: fd.get('notes'), lines, createdAt: invoice.createdAt || Date.now()
+    };
+    if (item.status === 'Încasată') {
+      item.paidAmount = invoiceTotal(item);
+      if (!item.paymentDate) item.paymentDate = currentDateValue();
+    }
+    if (id) db.invoices = db.invoices.map(current => current.id === id ? item : current); else db.invoices.unshift(item);
+  }, id ? () => { db.invoices = db.invoices.filter(item => item.id !== id); } : null);
+  bindInvoiceLines();
+}
+
+function expenseForm(expense = {}) {
+  return `<div class="form-grid">
+    <label>Data documentului <input class="field" type="date" name="date" required value="${escapeAttr(expense.date || currentDateValue())}"></label>
+    <label>Furnizor <input class="field" name="supplier" required value="${escapeAttr(expense.supplier || '')}"></label>
+    <label>Număr document <input class="field" name="documentNo" value="${escapeAttr(expense.documentNo || '')}" placeholder="Factură / bon / extras"></label>
+    <label>Categorie <select class="field" name="category">${EXPENSE_CATEGORIES.map(category => `<option ${expense.category === category ? 'selected' : ''}>${escapeHtml(category)}</option>`).join('')}</select></label>
+    <label>Valoare totală (RON) <input class="field" type="number" min="0" step="0.01" name="amount" required value="${Number(expense.amount || 0)}"></label>
+    <label>TVA inclus (RON) <input class="field" type="number" min="0" step="0.01" name="vatAmount" value="${Number(expense.vatAmount || 0)}"></label>
+    <label>Procent deductibil <input class="field" type="number" min="0" max="100" step="1" name="deductiblePercent" value="${Number(expense.deductiblePercent ?? 100)}"></label>
+    <label>Metodă plată <select class="field" name="paymentMethod">${['Card PFA','Transfer bancar','Numerar','Card personal','Altă metodă'].map(method => `<option ${expense.paymentMethod === method ? 'selected' : ''}>${method}</option>`).join('')}</select></label>
+    <label>Client asociat <select class="field" name="clientId"><option value="">Fără client</option>${db.clients.map(client => `<option value="${client.id}" ${expense.clientId === client.id ? 'selected' : ''}>${escapeHtml(client.name)}</option>`).join('')}</select></label>
+    <label>Proiect asociat <select class="field" name="projectId"><option value="">Fără proiect</option>${db.projects.map(project => `<option value="${project.id}" ${expense.projectId === project.id ? 'selected' : ''}>${escapeHtml(project.name)}</option>`).join('')}</select></label>
+    <label class="full">Descriere <input class="field" name="description" value="${escapeAttr(expense.description || '')}"></label>
+    <label class="full">Note justificative <textarea class="field" name="notes">${escapeHtml(expense.notes || '')}</textarea></label>
+  </div>`;
+}
+
+function openExpense(id = null) {
+  const expense = id ? db.expenses.find(item => item.id === id) : {};
+  openModal(id ? 'Editează cheltuiala' : 'Cheltuială nouă', expenseForm(expense), fd => {
+    const item = {
+      id: id || uid(), date: fd.get('date'), supplier: fd.get('supplier').trim(), documentNo: fd.get('documentNo'),
+      category: fd.get('category'), amount: Number(fd.get('amount') || 0), vatAmount: Number(fd.get('vatAmount') || 0),
+      deductiblePercent: Number(fd.get('deductiblePercent') || 0), paymentMethod: fd.get('paymentMethod'),
+      clientId: fd.get('clientId'), projectId: fd.get('projectId'), description: fd.get('description'), notes: fd.get('notes')
+    };
+    if (id) db.expenses = db.expenses.map(current => current.id === id ? item : current); else db.expenses.unshift(item);
+  }, id ? () => { db.expenses = db.expenses.filter(item => item.id !== id); } : null);
+}
+
+function markInvoicePaid(id) {
+  const invoice = db.invoices.find(item => item.id === id);
+  if (!invoice) return;
+  invoice.paidAmount = invoiceTotal(invoice);
+  invoice.paymentDate = currentDateValue();
+  invoice.status = 'Încasată';
+  render();
+  toast('Factura a fost marcată ca încasată.');
+}
+
+function printInvoice(id) {
+  const invoice = db.invoices.find(item => item.id === id);
+  const client = db.clients.find(item => item.id === invoice?.clientId);
+  if (!invoice) return;
+  const printWindow = window.open('', '_blank', 'width=900,height=900');
+  if (!printWindow) return toast('Permite ferestrele pop-up pentru a tipări factura.');
+  const issuer = db.fiscal;
+  const rows = invoice.lines.map((line, index) => `<tr><td>${index + 1}</td><td><strong>${escapeHtml(line.description)}</strong></td><td>${Number(line.quantity).toLocaleString('ro-RO')}</td><td>${escapeHtml(line.unit)}</td><td>${money(line.unitPrice, invoice.currency)}</td><td>${Number(line.vatRate || 0)}%</td><td>${money(Number(line.quantity) * Number(line.unitPrice) * (1 + Number(line.vatRate || 0) / 100), invoice.currency)}</td></tr>`).join('');
+  printWindow.document.write(`<!doctype html><html lang="ro"><head><meta charset="utf-8"><title>Factura ${escapeHtml(invoice.series)}-${escapeHtml(invoice.number)}</title><style>
+    *{box-sizing:border-box}body{margin:0;padding:42px;font:14px Arial,sans-serif;color:#152033;background:#fff}h1{font-size:30px;margin:0}h2{font-size:16px;margin:0 0 10px}.head{display:flex;justify-content:space-between;gap:30px;padding-bottom:24px;border-bottom:3px solid #111827}.number{text-align:right}.number strong{display:block;font-size:18px;margin-top:8px}.parties{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin:30px 0}.box{line-height:1.65}.muted{color:#64748b}table{width:100%;border-collapse:collapse;margin-top:25px}th,td{padding:11px 9px;border-bottom:1px solid #dbe2ea;text-align:left}th{font-size:10px;text-transform:uppercase;color:#64748b}.totals{width:330px;margin:24px 0 0 auto}.total-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #dbe2ea}.grand{font-size:18px;font-weight:800;border-bottom:0}.notes{margin-top:38px;padding:16px;background:#f5f7fa;border-radius:10px;white-space:pre-wrap}.foot{position:fixed;left:42px;right:42px;bottom:24px;color:#64748b;font-size:10px;text-align:center}@media print{body{padding:22px}.foot{left:22px;right:22px}}</style></head><body>
+    <div class="head"><div><h1>FACTURĂ</h1><div class="muted">Document emis electronic</div></div><div class="number"><span>Seria / numărul</span><strong>${escapeHtml(invoice.series)}-${escapeHtml(invoice.number)}</strong><div>Data: ${formatDate(invoice.issueDate)}</div><div>Scadență: ${formatDate(invoice.dueDate)}</div></div></div>
+    <div class="parties"><div class="box"><h2>FURNIZOR</h2><strong>${escapeHtml(issuer.businessName || 'Completează datele PFA')}</strong><br>CUI/CIF: ${escapeHtml(issuer.taxId || '—')}<br>Reg. Com.: ${escapeHtml(issuer.registryNo || '—')}<br>${escapeHtml(issuer.address || '—')}<br>IBAN: ${escapeHtml(issuer.iban || '—')}<br>${escapeHtml(issuer.bank || '')}<br>${escapeHtml(issuer.email || '')} ${escapeHtml(issuer.phone || '')}</div>
+    <div class="box"><h2>CLIENT</h2><strong>${escapeHtml(client?.name || 'Fără client')}</strong><br>CUI/CIF: ${escapeHtml(client?.taxId || '—')}<br>Reg. Com.: ${escapeHtml(client?.registryNo || '—')}<br>${escapeHtml(client?.address || '—')}<br>${escapeHtml(client?.email || '')}<br>${escapeHtml(client?.phone || '')}</div></div>
+    <table><thead><tr><th>#</th><th>Produs / serviciu</th><th>Cant.</th><th>UM</th><th>Preț</th><th>TVA</th><th>Total</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="totals"><div class="total-row"><span>Subtotal</span><strong>${money(invoiceSubtotal(invoice), invoice.currency)}</strong></div><div class="total-row"><span>TVA</span><strong>${money(invoiceVat(invoice), invoice.currency)}</strong></div><div class="total-row grand"><span>Total</span><strong>${money(invoiceTotal(invoice), invoice.currency)}</strong></div></div>
+    ${invoice.notes ? `<div class="notes"><strong>Observații</strong><br>${escapeHtml(invoice.notes)}</div>` : ''}<div class="foot">Generată local în Creative OS. Acest PDF nu confirmă transmiterea sau validarea în sistemul RO e-Factura.</div><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);
+  printWindow.document.close();
+}
+
+function printTimesheet() {
+  const entries = reportEntries();
+  const rows = entries.map(entry => {
+    const task = timeEntryTask(entry);
+    return `<tr><td>${formatDateTime(entry.date)}</td><td>${escapeHtml(clientName(task?.clientId || ''))}</td><td>${escapeHtml(projectName(task?.projectId || ''))}</td><td>${escapeHtml(task?.title || 'Task șters')}</td><td>${secondsToHm(entry.seconds)}</td></tr>`;
+  }).join('');
+  const printWindow = window.open('', '_blank', 'width=900,height=900');
+  if (!printWindow) return toast('Permite ferestrele pop-up pentru tipărire.');
+  printWindow.document.write(`<!doctype html><html lang="ro"><head><meta charset="utf-8"><title>Desfășurător ${reportFrom.value} - ${reportTo.value}</title><style>body{font:13px Arial;padding:35px;color:#172033}h1{margin:0 0 8px}.muted{color:#64748b;margin-bottom:28px}table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #dbe2ea;text-align:left}th{text-transform:uppercase;font-size:10px;color:#64748b}.total{text-align:right;margin-top:20px;font-size:18px;font-weight:700}</style></head><body><h1>Desfășurător activitate</h1><div class="muted">${formatDate(reportFrom.value)} – ${formatDate(reportTo.value)} · ${escapeHtml(db.fiscal.businessName || 'Creative OS')}</div><table><thead><tr><th>Dată</th><th>Client</th><th>Proiect</th><th>Activitate</th><th>Timp</th></tr></thead><tbody>${rows}</tbody></table><div class="total">Total: ${secondsToHm(entries.reduce((sum, entry) => sum + Number(entry.seconds || 0), 0))}</div><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);
+  printWindow.document.close();
+}
+
+function populateFiscalSettings() {
+  if (fiscalSettingsForm.contains(document.activeElement)) return;
+  Object.entries(db.fiscal).forEach(([key, value]) => {
+    const field = fiscalSettingsForm.elements[key];
+    if (!field) return;
+    if (field.type === 'checkbox') field.checked = Boolean(value); else field.value = value ?? '';
+  });
+}
+
 function syncTimerRate() {
   const task = db.tasks.find(t => t.id === timerTask.value);
   timerRate.value = task ? Number(task.hourlyRate || 0) : '';
@@ -2291,7 +3123,13 @@ function openModal(title, html, onSubmit, onDelete) {
     <div style="display:flex;gap:10px"><button type="button" class="btn secondary" id="cancelBtn">Anulează</button><button class="btn" type="submit">Salvează</button></div>
   </div>`;
   modalBackdrop.classList.add('active');
-  modalForm.onsubmit = e => { e.preventDefault(); onSubmit(new FormData(modalForm)); modalBackdrop.classList.remove('active'); render(); };
+  modalForm.onsubmit = e => {
+    e.preventDefault();
+    const result = onSubmit(new FormData(modalForm));
+    if (result === false) return;
+    modalBackdrop.classList.remove('active');
+    render();
+  };
   cancelBtn.onclick = () => modalBackdrop.classList.remove('active');
   if (onDelete) deleteBtn.onclick = () => { onDelete(); modalBackdrop.classList.remove('active'); render(); };
 }
@@ -2352,9 +3190,13 @@ function clientForm(c = {}) {
   return `<div class="form-grid">
     <label>Nume client <input class="field" name="name" required value="${escapeAttr(c.name || '')}"></label>
     <label>Contact <input class="field" name="contact" value="${escapeAttr(c.contact || '')}"></label>
+    <label>CUI / CIF <input class="field" name="taxId" value="${escapeAttr(c.taxId || '')}"></label>
+    <label>Nr. Registrul Comerțului <input class="field" name="registryNo" value="${escapeAttr(c.registryNo || '')}"></label>
     <label>Email <input class="field" name="email" value="${escapeAttr(c.email || '')}"></label>
     <label>Telefon <input class="field" name="phone" value="${escapeAttr(c.phone || '')}"></label>
     <label>Website / Instagram <input class="field" name="website" value="${escapeAttr(c.website || '')}"></label>
+    <label>Țară <input class="field" name="country" value="${escapeAttr(c.country || 'România')}"></label>
+    <label class="full">Adresă facturare <textarea class="field" name="address">${escapeHtml(c.address || '')}</textarea></label>
     <label class="full">Note <textarea class="field" name="notes">${escapeHtml(c.notes || '')}</textarea></label>
   </div>`;
 }
@@ -2362,11 +3204,13 @@ function clientForm(c = {}) {
 function openClient(id = null) {
   const c = id ? db.clients.find(x => x.id === id) : {};
   openModal(id ? 'Editează client' : 'Client nou', clientForm(c), fd => {
-    const item = { id: id || uid(), name: fd.get('name').trim(), contact: fd.get('contact'), email: fd.get('email'), phone: fd.get('phone'), website: fd.get('website'), notes: fd.get('notes') };
+    const item = { id: id || uid(), name: fd.get('name').trim(), contact: fd.get('contact'), taxId: fd.get('taxId'), registryNo: fd.get('registryNo'), email: fd.get('email'), phone: fd.get('phone'), website: fd.get('website'), country: fd.get('country'), address: fd.get('address'), notes: fd.get('notes') };
     if (id) db.clients = db.clients.map(x => x.id === id ? item : x); else db.clients.unshift(item);
   }, id ? () => {
     db.tasks.forEach(t => { if (t.clientId === id) t.clientId = ''; });
     db.projects.forEach(p => { if (p.clientId === id) p.clientId = ''; });
+    db.invoices.forEach(invoice => { if (invoice.clientId === id) invoice.clientId = ''; });
+    db.expenses.forEach(expense => { if (expense.clientId === id) expense.clientId = ''; });
     db.clients = db.clients.filter(x => x.id !== id);
   } : null);
 }
@@ -2389,6 +3233,8 @@ function openProject(id = null) {
     if (id) db.projects = db.projects.map(x => x.id === id ? item : x); else db.projects.unshift(item);
   }, id ? () => {
     db.tasks.forEach(t => { if (t.projectId === id) t.projectId = ''; });
+    db.invoices.forEach(invoice => { if (invoice.projectId === id) invoice.projectId = ''; });
+    db.expenses.forEach(expense => { if (expense.projectId === id) expense.projectId = ''; });
     db.projects = db.projects.filter(x => x.id !== id);
   } : null);
 }
@@ -2433,11 +3279,14 @@ function escapeAttr(str) { return escapeHtml(str); }
 newTaskBtn.onclick = () => openTask();
 newClientBtn.onclick = () => openClient();
 newProjectBtn.onclick = () => openProject();
+newInvoiceBtn.onclick = () => openInvoice();
+newExpenseBtn.onclick = () => openExpense();
+printTimesheetBtn.onclick = printTimesheet;
 closeModal.onclick = () => modalBackdrop.classList.remove('active');
 modalBackdrop.addEventListener('click', e => { if (e.target === modalBackdrop) modalBackdrop.classList.remove('active'); });
-settingsBtn.onclick = () => settingsBackdrop.classList.add('active');
-closeSettings.onclick = () => settingsBackdrop.classList.remove('active');
-settingsBackdrop.addEventListener('click', e => { if (e.target === settingsBackdrop) settingsBackdrop.classList.remove('active'); });
+document.getElementById('settingsBtn').onclick = () => document.getElementById('settingsBackdrop').classList.add('active');
+document.getElementById('closeSettings').onclick = () => document.getElementById('settingsBackdrop').classList.remove('active');
+document.getElementById('settingsBackdrop').addEventListener('click', e => { if (e.target === document.getElementById('settingsBackdrop')) document.getElementById('settingsBackdrop').classList.remove('active'); });
 
 currencyBtn.onclick = () => {
   finance.currency = finance.currency === 'RON' ? 'EUR' : 'RON';
@@ -2478,6 +3327,41 @@ addManualTimeBtn.onclick = () => {
 [boardSearch, boardClient, boardPriority, boardSort].forEach(el => el.addEventListener('input', render));
 [taskSearch, taskClient, taskProject, taskStatus, taskPriority, taskTableSort].forEach(el => el.addEventListener('input', render));
 [timeSearch, timerClient, timerProject, timeSource, timeSort].forEach(el => el.addEventListener('input', render));
+[invoiceSearch, invoiceStatus, invoiceSort].forEach(el => el.addEventListener('input', renderInvoicesTable));
+[expenseSearch, expenseCategory, expenseSort].forEach(el => el.addEventListener('input', renderExpensesTable));
+[reportFrom, reportTo, reportClient, reportProject].forEach(el => el.addEventListener('input', renderTimesheetReport));
+financeClient.addEventListener('input', render);
+fiscalYear.addEventListener('input', () => {
+  reportFrom.value = `${fiscalYear.value}-01-01`;
+  reportTo.value = `${fiscalYear.value}-12-31`;
+  render();
+});
+
+financeTabs.querySelectorAll('.finance-tab').forEach(tab => {
+  tab.onclick = () => {
+    financeTabs.querySelectorAll('.finance-tab').forEach(item => item.classList.remove('active'));
+    document.querySelectorAll('.finance-panel').forEach(panel => panel.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(`finance-${tab.dataset.financePanel}`).classList.add('active');
+  };
+});
+
+fiscalSettingsForm.onsubmit = event => {
+  event.preventDefault();
+  const fd = new FormData(fiscalSettingsForm);
+  db.fiscal = {
+    ...db.fiscal,
+    businessName: fd.get('businessName').trim(), taxId: fd.get('taxId').trim(), registryNo: fd.get('registryNo').trim(),
+    address: fd.get('address').trim(), iban: fd.get('iban').trim(), bank: fd.get('bank').trim(), email: fd.get('email').trim(), phone: fd.get('phone').trim(),
+    invoiceSeries: fd.get('invoiceSeries').trim() || 'COS', vatRegistered: fd.has('vatRegistered'), taxYear: Number(fd.get('taxYear') || 2026),
+    minimumSalary: Number(fd.get('minimumSalary') || 4050), casRate: Number(fd.get('casRate') || 25), cassRate: Number(fd.get('cassRate') || 10),
+    incomeTaxRate: Number(fd.get('incomeTaxRate') || 10), vatThreshold: Number(fd.get('vatThreshold') || 395000), chosenCasBase: Number(fd.get('chosenCasBase') || 0),
+    voluntaryCas: fd.has('voluntaryCas'), cassMaxSalaries: Number(fd.get('cassMaxSalaries') || 72), cassMinimumExempt: fd.has('cassMinimumExempt')
+  };
+  saveDb();
+  render();
+  toast('Datele PFA și setările fiscale au fost salvate.');
+};
 clearFiltersBtn.onclick = () => { boardSearch.value = ''; boardClient.value = ''; boardPriority.value = ''; boardSort.value = 'deadline-asc'; render(); };
 clearTaskFiltersBtn.onclick = () => {
   taskSearch.value = '';
@@ -2510,7 +3394,8 @@ document.querySelectorAll('.nav button[data-view]').forEach(btn => {
       tasks: 'Listă completă pentru editare și urmărire rapidă.',
       clients: 'CRM personal pentru clienții tăi.',
       projects: 'Briefuri, bugete și livrabile grupate pe proiect.',
-      timer: 'Cronometrează munca și salvează timpul pe task.'
+      timer: 'Cronometrează munca și salvează timpul pe task.',
+      invoices: 'Facturare, încasări, cheltuieli deductibile și estimări fiscale PFA.'
     };
     pageSubtitle.textContent = subtitles[btn.dataset.view];
   };
@@ -2570,7 +3455,8 @@ importFile.onchange = e => {
     try {
       const imported = JSON.parse(reader.result);
       if (!imported.tasks || !imported.clients || !imported.projects) throw new Error('Format invalid');
-      db = imported;
+      db = normalizeDb(imported);
+      saveDb();
       settingsBackdrop.classList.remove('active');
       render();
       toast('Backup importat');
