@@ -1895,6 +1895,12 @@ body:not(.dark) .signature-floater {
               <label>Email <input class="field" name="email" type="email"></label>
               <label>Telefon <input class="field" name="phone"></label>
               <label>Serie facturi <input class="field" name="invoiceSeries" placeholder="COS"></label>
+              <label>PNG pentru subsolul exporturilor
+                <input class="field" id="footerPngInput" type="file" accept="image/png">
+                <span class="desc">Apare numai în partea de jos a facturii și a desfășurătorului PDF. Maxim 2 MB.</span>
+              </label>
+              <div id="footerPngPreview" style="min-height:42px;padding:10px;border:1px dashed var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center"></div>
+              <button class="btn secondary" id="removeFooterPngBtn" type="button">Elimină PNG-ul</button>
               <label class="checkbox-line"><input type="checkbox" name="vatRegistered"> Înregistrat în scopuri de TVA</label>
             </article>
             <article class="finance-card">
@@ -1968,7 +1974,7 @@ const FRANKFURTER_RATE_URL = 'https://api.frankfurter.dev/v1/latest?base=EUR&sym
 const EXPENSE_CATEGORIES = ['Software & abonamente', 'Echipamente', 'Telefon & internet', 'Marketing', 'Transport', 'Spațiu de lucru', 'Servicii profesionale', 'Comisioane bancare', 'Educație', 'Protocol', 'Altele'];
 const DEFAULT_FISCAL = {
   businessName: '', taxId: '', registryNo: '', address: '', iban: '', bank: '', email: '', phone: '',
-  invoiceSeries: 'COS', vatRegistered: false, taxYear: 2026, minimumSalary: 4050,
+  invoiceSeries: 'COS', footerPng: '', vatRegistered: false, taxYear: 2026, minimumSalary: 4050,
   casRate: 25, cassRate: 10, incomeTaxRate: 10, vatThreshold: 395000,
   chosenCasBase: 0, voluntaryCas: false, cassMaxSalaries: 72, cassMinimumExempt: false
 };
@@ -2113,6 +2119,36 @@ function formatDate(date) {
   const d = new Date(date + 'T12:00:00');
   if (Number.isNaN(d.getTime())) return 'Dată invalidă';
   return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+}
+
+function invoiceDateFieldValue(date) {
+  return date ? formatDate(String(date).slice(0, 10)) : '';
+}
+
+function parseRomanianDate(value) {
+  const text = String(value || '').trim();
+  if (!text) return '';
+  const match = text.match(/^(\d{1,2})[/.\-](\d{1,2})[/.\-](\d{4})$/);
+  if (!match) return null;
+  const day = Number(match[1]);
+  const month = Number(match[2]);
+  const year = Number(match[3]);
+  const date = new Date(year, month - 1, day, 12);
+  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return null;
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+function bindRomanianDateFields(container) {
+  container.querySelectorAll('[data-ro-date]').forEach(field => {
+    field.addEventListener('blur', () => {
+      const parsed = parseRomanianDate(field.value);
+      if (parsed) field.value = invoiceDateFieldValue(parsed);
+    });
+  });
+}
+
+function safeFooterPng(value = db.fiscal.footerPng) {
+  return /^data:image\/png;base64,[a-z0-9+/=\s]+$/i.test(String(value || '')) ? String(value) : '';
 }
 
 function formatDateTime(date) {
@@ -2965,13 +3001,13 @@ function invoiceForm(invoice = {}) {
     <label>Proiect <select class="field" name="projectId"><option value="">Fără proiect</option>${db.projects.map(project => `<option value="${project.id}" ${invoice.projectId === project.id ? 'selected' : ''}>${escapeHtml(project.name)}</option>`).join('')}</select></label>
     <label>Serie <input class="field" name="series" required value="${escapeAttr(series)}"></label>
     <label>Număr <input class="field" name="number" required value="${escapeAttr(invoice.number || nextInvoiceNumber(series))}"></label>
-    <label>Data emiterii <input class="field" name="issueDate" type="date" required value="${escapeAttr(invoice.issueDate || currentDateValue())}"></label>
-    <label>Scadență <input class="field" name="dueDate" type="date" value="${escapeAttr(invoice.dueDate || todayPlus(14))}"></label>
+    <label>Data emiterii <input class="field" name="issueDate" type="text" inputmode="numeric" data-ro-date required placeholder="zz/ll/aaaa" value="${escapeAttr(invoiceDateFieldValue(invoice.issueDate || currentDateValue()))}"></label>
+    <label>Scadență <input class="field" name="dueDate" type="text" inputmode="numeric" data-ro-date placeholder="zz/ll/aaaa" value="${escapeAttr(invoiceDateFieldValue(invoice.dueDate || todayPlus(14)))}"></label>
     <label>Monedă <select class="field" name="currency"><option ${currency === 'RON' ? 'selected' : ''}>RON</option><option ${currency === 'EUR' ? 'selected' : ''}>EUR</option></select></label>
     <label>Curs EUR/RON <input class="field" name="exchangeRate" type="number" min="0" step="0.0001" value="${Number(invoice.exchangeRate || finance.eurRate || DEFAULT_EUR_RATE)}"></label>
     <label>Status <select class="field" name="status">${['Emisă','Încasată','Restantă','Anulată'].map(status => `<option ${invoiceStatusValue(invoice) === status ? 'selected' : ''}>${status}</option>`).join('')}</select></label>
     <label>Sumă încasată <input class="field" name="paidAmount" type="number" min="0" step="0.01" value="${Number(invoice.paidAmount || 0)}"></label>
-    <label>Data încasării <input class="field" name="paymentDate" type="date" value="${escapeAttr(invoice.paymentDate || '')}"></label>
+    <label>Data încasării <input class="field" name="paymentDate" type="text" inputmode="numeric" data-ro-date placeholder="zz/ll/aaaa" value="${escapeAttr(invoiceDateFieldValue(invoice.paymentDate || ''))}"></label>
     <label>Metodă plată <select class="field" name="paymentMethod">${['Transfer bancar','Card','Numerar','Altă metodă'].map(method => `<option ${invoice.paymentMethod === method ? 'selected' : ''}>${method}</option>`).join('')}</select></label>
     <div class="invoice-lines"><div class="finance-card-head"><h3>Linii factură</h3><button class="btn secondary" id="addInvoiceLineBtn" type="button">+ Linie</button></div><div id="invoiceLines">${lines.map(invoiceLineHtml).join('')}</div></div>
     <div class="invoice-total-preview" id="invoiceTotalPreview"></div>
@@ -3043,14 +3079,18 @@ function openInvoice(id = null) {
   openModal(id ? 'Editează factura' : 'Factură nouă', invoiceForm(invoice), fd => {
     const lines = collectInvoiceLines();
     if (!lines.length) { toast('Adaugă cel puțin o linie validă.'); return false; }
+    const issueDate = parseRomanianDate(fd.get('issueDate'));
+    const dueDate = parseRomanianDate(fd.get('dueDate'));
+    const paymentDate = parseRomanianDate(fd.get('paymentDate'));
+    if (!issueDate || dueDate === null || paymentDate === null) { toast('Folosește formatul zz/ll/aaaa pentru date.'); return false; }
     const duplicate = db.invoices.some(current => current.id !== id && current.series === fd.get('series').trim() && String(current.number) === fd.get('number').trim());
     if (duplicate) { toast('Există deja o factură cu această serie și acest număr.'); return false; }
     const item = {
       id: id || uid(), clientId: fd.get('clientId'), projectId: fd.get('projectId'),
       sourceTaskId: fd.get('sourceTaskId'),
-      series: fd.get('series').trim(), number: fd.get('number').trim(), issueDate: fd.get('issueDate'), dueDate: fd.get('dueDate'),
+      series: fd.get('series').trim(), number: fd.get('number').trim(), issueDate, dueDate,
       currency: fd.get('currency'), exchangeRate: Number(fd.get('exchangeRate') || 1), status: fd.get('status'),
-      paidAmount: Number(fd.get('paidAmount') || 0), paymentDate: fd.get('paymentDate'), paymentMethod: fd.get('paymentMethod'),
+      paidAmount: Number(fd.get('paidAmount') || 0), paymentDate, paymentMethod: fd.get('paymentMethod'),
       notes: fd.get('notes'), lines, createdAt: invoice.createdAt || Date.now()
     };
     if (item.status === 'Încasată') {
@@ -3060,6 +3100,7 @@ function openInvoice(id = null) {
     if (id) db.invoices = db.invoices.map(current => current.id === id ? item : current); else db.invoices.unshift(item);
   }, id ? () => { db.invoices = db.invoices.filter(item => item.id !== id); } : null);
   bindInvoiceLines();
+  bindRomanianDateFields(modalForm);
 }
 
 function expenseForm(expense = {}) {
@@ -3109,15 +3150,17 @@ function printInvoice(id) {
   const printWindow = window.open('', '_blank', 'width=900,height=900');
   if (!printWindow) return toast('Permite ferestrele pop-up pentru a tipări factura.');
   const issuer = db.fiscal;
+  const footerPng = safeFooterPng(issuer.footerPng);
+  const footerImage = footerPng ? `<img src="${footerPng}" alt="Element grafic subsol">` : '';
   const rows = invoice.lines.map((line, index) => `<tr><td>${index + 1}</td><td><strong>${escapeHtml(line.description)}</strong></td><td>${Number(line.quantity).toLocaleString('ro-RO')}</td><td>${escapeHtml(line.unit)}</td><td>${money(line.unitPrice, invoice.currency)}</td><td>${Number(line.vatRate || 0)}%</td><td>${money(Number(line.quantity) * Number(line.unitPrice) * (1 + Number(line.vatRate || 0) / 100), invoice.currency)}</td></tr>`).join('');
   printWindow.document.write(`<!doctype html><html lang="ro"><head><meta charset="utf-8"><title>Factura ${escapeHtml(invoice.series)}-${escapeHtml(invoice.number)}</title><style>
-    @page{size:A4;margin:0}*{box-sizing:border-box}body{margin:0;padding:16mm;font:14px Arial,sans-serif;color:#152033;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{font-size:30px;margin:0}h2{font-size:16px;margin:0 0 10px}.head{display:flex;justify-content:space-between;gap:30px;padding-bottom:24px;border-bottom:3px solid #111827}.number{text-align:right}.number strong{display:block;font-size:18px;margin-top:8px}.parties{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin:30px 0}.box{line-height:1.65}.muted{color:#64748b}table{width:100%;border-collapse:collapse;margin-top:25px}th,td{padding:11px 9px;border-bottom:1px solid #dbe2ea;text-align:left}th{font-size:10px;text-transform:uppercase;color:#64748b}.totals{width:330px;margin:24px 0 0 auto}.total-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #dbe2ea}.grand{font-size:18px;font-weight:800;border-bottom:0}.notes{margin-top:38px;padding:16px;background:#f5f7fa;border-radius:10px;white-space:pre-wrap}.foot{position:fixed;left:16mm;right:16mm;bottom:8mm;color:#64748b;font-size:10px;text-align:center}</style></head><body>
+    @page{size:A4;margin:0}*{box-sizing:border-box}body{margin:0;padding:16mm 16mm 38mm;font:14px Arial,sans-serif;color:#152033;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{font-size:30px;margin:0}h2{font-size:16px;margin:0 0 10px}.head{display:flex;justify-content:space-between;gap:30px;padding-bottom:24px;border-bottom:3px solid #111827}.number{text-align:right}.number strong{display:block;font-size:18px;margin-top:8px}.parties{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin:30px 0}.box{line-height:1.65}.muted{color:#64748b}table{width:100%;border-collapse:collapse;margin-top:25px}th,td{padding:11px 9px;border-bottom:1px solid #dbe2ea;text-align:left}th{font-size:10px;text-transform:uppercase;color:#64748b}.totals{width:330px;margin:24px 0 0 auto}.total-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #dbe2ea}.grand{font-size:18px;font-weight:800;border-bottom:0}.notes{margin-top:38px;padding:16px;background:#f5f7fa;border-radius:10px;white-space:pre-wrap}.foot{position:fixed;left:16mm;right:16mm;bottom:6mm;color:#64748b;font-size:10px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}.foot img{display:block;max-width:100%;max-height:18mm;object-fit:contain}</style></head><body>
     <div class="head"><div><h1>FACTURĂ</h1><div class="muted">Document emis electronic</div></div><div class="number"><span>Seria / numărul</span><strong>${escapeHtml(invoice.series)}-${escapeHtml(invoice.number)}</strong><div>Data: ${formatDate(invoice.issueDate)}</div><div>Scadență: ${formatDate(invoice.dueDate)}</div></div></div>
     <div class="parties"><div class="box"><h2>FURNIZOR</h2><strong>${escapeHtml(issuer.businessName || 'Completează datele PFA')}</strong><br>CUI/CIF: ${escapeHtml(issuer.taxId || '—')}<br>Reg. Com.: ${escapeHtml(issuer.registryNo || '—')}<br>${escapeHtml(issuer.address || '—')}<br>IBAN: ${escapeHtml(issuer.iban || '—')}<br>${escapeHtml(issuer.bank || '')}<br>${escapeHtml(issuer.email || '')} ${escapeHtml(issuer.phone || '')}</div>
     <div class="box"><h2>CLIENT</h2><strong>${escapeHtml(client?.name || 'Fără client')}</strong><br>CUI/CIF: ${escapeHtml(client?.taxId || '—')}<br>Reg. Com.: ${escapeHtml(client?.registryNo || '—')}<br>${escapeHtml(client?.address || '—')}<br>${escapeHtml(client?.email || '')}<br>${escapeHtml(client?.phone || '')}</div></div>
     <table><thead><tr><th>#</th><th>Produs / serviciu</th><th>Cant.</th><th>UM</th><th>Preț</th><th>TVA</th><th>Total</th></tr></thead><tbody>${rows}</tbody></table>
     <div class="totals"><div class="total-row"><span>Subtotal</span><strong>${money(invoiceSubtotal(invoice), invoice.currency)}</strong></div><div class="total-row"><span>TVA</span><strong>${money(invoiceVat(invoice), invoice.currency)}</strong></div><div class="total-row grand"><span>Total</span><strong>${money(invoiceTotal(invoice), invoice.currency)}</strong></div></div>
-    ${invoice.notes ? `<div class="notes"><strong>Observații</strong><br>${escapeHtml(invoice.notes)}</div>` : ''}<div class="foot">Generată local în Creative OS. Acest PDF nu confirmă transmiterea sau validarea în sistemul RO e-Factura.</div><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);
+    ${invoice.notes ? `<div class="notes"><strong>Observații</strong><br>${escapeHtml(invoice.notes)}</div>` : ''}<div class="foot">${footerImage}<span>Generată local în Creative OS. Acest PDF nu confirmă transmiterea sau validarea în sistemul RO e-Factura.</span></div><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);
   printWindow.document.close();
 }
 
@@ -3129,7 +3172,9 @@ function printTimesheet() {
   }).join('');
   const printWindow = window.open('', '_blank', 'width=900,height=900');
   if (!printWindow) return toast('Permite ferestrele pop-up pentru tipărire.');
-  printWindow.document.write(`<!doctype html><html lang="ro"><head><meta charset="utf-8"><title>Desfășurător ${formatDate(reportFrom.value)} - ${formatDate(reportTo.value)}</title><style>@page{size:A4;margin:0}*{box-sizing:border-box}body{margin:0;padding:16mm;font:13px Arial;color:#172033;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{margin:0 0 8px}.muted{color:#64748b;margin-bottom:28px}table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #dbe2ea;text-align:left}th{text-transform:uppercase;font-size:10px;color:#64748b}.total{text-align:right;margin-top:20px;font-size:18px;font-weight:700}</style></head><body><h1>Desfășurător activitate</h1><div class="muted">${formatDate(reportFrom.value)} – ${formatDate(reportTo.value)} · ${escapeHtml(db.fiscal.businessName || 'Creative OS')}</div><table><thead><tr><th>Dată</th><th>Client</th><th>Proiect</th><th>Activitate</th><th>Timp</th></tr></thead><tbody>${rows}</tbody></table><div class="total">Total: ${secondsToHm(entries.reduce((sum, entry) => sum + Number(entry.seconds || 0), 0))}</div><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);
+  const footerPng = safeFooterPng();
+  const footerImage = footerPng ? `<img src="${footerPng}" alt="Element grafic subsol">` : '';
+  printWindow.document.write(`<!doctype html><html lang="ro"><head><meta charset="utf-8"><title>Desfășurător ${formatDate(reportFrom.value)} - ${formatDate(reportTo.value)}</title><style>@page{size:A4;margin:0}*{box-sizing:border-box}body{margin:0;padding:16mm 16mm 38mm;font:13px Arial;color:#172033;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{margin:0 0 8px}.muted{color:#64748b;margin-bottom:28px}table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #dbe2ea;text-align:left}th{text-transform:uppercase;font-size:10px;color:#64748b}.total{text-align:right;margin-top:20px;font-size:18px;font-weight:700}.foot{position:fixed;left:16mm;right:16mm;bottom:6mm;display:flex;justify-content:center}.foot img{display:block;max-width:100%;max-height:18mm;object-fit:contain}</style></head><body><h1>Desfășurător activitate</h1><div class="muted">${formatDate(reportFrom.value)} – ${formatDate(reportTo.value)} · ${escapeHtml(db.fiscal.businessName || 'Creative OS')}</div><table><thead><tr><th>Dată</th><th>Client</th><th>Proiect</th><th>Activitate</th><th>Timp</th></tr></thead><tbody>${rows}</tbody></table><div class="total">Total: ${secondsToHm(entries.reduce((sum, entry) => sum + Number(entry.seconds || 0), 0))}</div>${footerImage ? `<div class="foot">${footerImage}</div>` : ''}<script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);
   printWindow.document.close();
 }
 
@@ -3140,6 +3185,18 @@ function populateFiscalSettings() {
     if (!field) return;
     if (field.type === 'checkbox') field.checked = Boolean(value); else field.value = value ?? '';
   });
+  updateFooterPngPreview();
+}
+
+function updateFooterPngPreview() {
+  const preview = document.getElementById('footerPngPreview');
+  const removeButton = document.getElementById('removeFooterPngBtn');
+  if (!preview || !removeButton) return;
+  const image = safeFooterPng();
+  preview.innerHTML = image
+    ? `<img src="${image}" alt="Previzualizare PNG subsol" style="display:block;max-width:100%;max-height:70px;object-fit:contain">`
+    : '<span class="desc">Niciun PNG încărcat.</span>';
+  removeButton.hidden = !image;
 }
 
 function syncTimerRate() {
@@ -3379,6 +3436,37 @@ financeTabs.querySelectorAll('.finance-tab').forEach(tab => {
     document.getElementById(`finance-${tab.dataset.financePanel}`).classList.add('active');
   };
 });
+
+footerPngInput.onchange = event => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  if (file.type !== 'image/png') {
+    event.target.value = '';
+    return toast('Alege o imagine în format PNG.');
+  }
+  if (file.size > 2 * 1024 * 1024) {
+    event.target.value = '';
+    return toast('PNG-ul trebuie să fie mai mic de 2 MB.');
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const image = safeFooterPng(reader.result);
+    if (!image) return toast('Fișierul PNG nu a putut fi citit.');
+    db.fiscal.footerPng = image;
+    saveDb();
+    updateFooterPngPreview();
+    footerPngInput.value = '';
+    toast('PNG-ul a fost adăugat în subsolul exporturilor.');
+  };
+  reader.readAsDataURL(file);
+};
+
+removeFooterPngBtn.onclick = () => {
+  db.fiscal.footerPng = '';
+  saveDb();
+  updateFooterPngPreview();
+  toast('PNG-ul a fost eliminat din exporturi.');
+};
 
 fiscalSettingsForm.onsubmit = event => {
   event.preventDefault();
