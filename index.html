@@ -2072,6 +2072,12 @@ function normalizeDb(data) {
     })) : [],
     paidAmount: Number(invoice.paidAmount || 0),
     exchangeRate: Number(invoice.exchangeRate || 1),
+    timesheet: invoice.timesheet && Array.isArray(invoice.timesheet.entries) ? {
+      ...invoice.timesheet,
+      projectIds: Array.isArray(invoice.timesheet.projectIds) ? invoice.timesheet.projectIds : [],
+      taskIds: Array.isArray(invoice.timesheet.taskIds) ? invoice.timesheet.taskIds : [],
+      entries: invoice.timesheet.entries.map(entry => ({ ...entry, seconds: Number(entry.seconds || 0) })).filter(entry => entry.seconds > 0)
+    } : null,
     createdAt: Number(invoice.createdAt || Date.now())
   })) : [];
   data.expenses = Array.isArray(data.expenses) ? data.expenses.map(expense => ({
@@ -2995,6 +3001,9 @@ function invoiceForm(invoice = {}) {
   const series = invoice.series || db.fiscal.invoiceSeries || 'COS';
   const lines = invoice.lines?.length ? invoice.lines : [{ description: '', quantity: 1, unit: 'ore', unitPrice: 0, vatRate: db.fiscal.vatRegistered ? 21 : 0 }];
   const currency = invoice.currency || 'RON';
+  const timesheet = invoice.timesheet || {};
+  const selectedTimesheetProjects = new Set(timesheet.projectIds || []);
+  const selectedTimesheetTasks = new Set(timesheet.taskIds || []);
   return `<div class="form-grid">
     <label class="full">Preia automat tariful din task <select class="field" name="sourceTaskId" id="invoiceSourceTask"><option value="">Fără task asociat</option>${db.tasks.filter(task => task.status !== 'Arhivat').map(task => `<option value="${task.id}" ${invoice.sourceTaskId === task.id ? 'selected' : ''}>${escapeHtml(task.title)} · ${Number((task.billingType || 'hourly') === 'fixed' ? task.taskValue : task.hourlyRate)} ${task.rateCurrency || 'RON'}${(task.billingType || 'hourly') === 'hourly' ? '/h' : ''}</option>`).join('')}</select></label>
     <label>Client <select class="field" name="clientId" required><option value="">Alege client</option>${db.clients.map(client => `<option value="${client.id}" ${invoice.clientId === client.id ? 'selected' : ''}>${escapeHtml(client.name)}</option>`).join('')}</select></label>
@@ -3009,6 +3018,17 @@ function invoiceForm(invoice = {}) {
     <label>Sumă încasată <input class="field" name="paidAmount" type="number" min="0" step="0.01" value="${Number(invoice.paidAmount || 0)}"></label>
     <label>Data încasării <input class="field" name="paymentDate" type="text" inputmode="numeric" data-ro-date placeholder="zz/ll/aaaa" value="${escapeAttr(invoiceDateFieldValue(invoice.paymentDate || ''))}"></label>
     <label>Metodă plată <select class="field" name="paymentMethod">${['Transfer bancar','Card','Numerar','Altă metodă'].map(method => `<option ${invoice.paymentMethod === method ? 'selected' : ''}>${method}</option>`).join('')}</select></label>
+    <div class="finance-card full" style="padding:16px">
+      <div class="finance-card-head"><div><h3>Desfășurător atașat <span class="desc">· opțional</span></h3><div class="desc">Va fi adăugat după factură în același PDF.</div></div></div>
+      <div class="form-grid">
+        <label>De la <input class="field" name="timesheetFrom" type="text" inputmode="numeric" data-ro-date placeholder="zz/ll/aaaa" value="${escapeAttr(invoiceDateFieldValue(timesheet.from || ''))}"></label>
+        <label>Până la <input class="field" name="timesheetTo" type="text" inputmode="numeric" data-ro-date placeholder="zz/ll/aaaa" value="${escapeAttr(invoiceDateFieldValue(timesheet.to || ''))}"></label>
+        <label>Proiecte incluse <select class="field" name="timesheetProjectIds" multiple size="4">${db.projects.map(project => `<option value="${project.id}" ${selectedTimesheetProjects.has(project.id) ? 'selected' : ''}>${escapeHtml(project.name)} · ${escapeHtml(clientName(project.clientId))}</option>`).join('')}</select><span class="desc">Poți selecta mai multe. Fără selecție înseamnă toate proiectele.</span></label>
+        <label>Taskuri incluse <select class="field" name="timesheetTaskIds" multiple size="4">${db.tasks.map(task => `<option value="${task.id}" ${selectedTimesheetTasks.has(task.id) ? 'selected' : ''}>${escapeHtml(task.title)} · ${escapeHtml(projectName(task.projectId))}</option>`).join('')}</select><span class="desc">Proiectele și taskurile selectate se combină.</span></label>
+      </div>
+      <div id="invoiceTimesheetPreview" class="finance-callout" style="margin-top:12px"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn secondary" id="buildInvoiceTimesheetBtn" type="button">Generează desfășurătorul</button><button class="btn secondary" id="removeInvoiceTimesheetBtn" type="button">Elimină desfășurătorul</button></div>
+    </div>
     <div class="invoice-lines"><div class="finance-card-head"><h3>Linii factură</h3><button class="btn secondary" id="addInvoiceLineBtn" type="button">+ Linie</button></div><div id="invoiceLines">${lines.map(invoiceLineHtml).join('')}</div></div>
     <div class="invoice-total-preview" id="invoiceTotalPreview"></div>
     <label class="full">Note pe factură <textarea class="field" name="notes">${escapeHtml(invoice.notes || '')}</textarea></label>
@@ -3074,6 +3094,97 @@ function bindInvoiceLines() {
   syncInvoiceTotalPreview();
 }
 
+function bindInvoiceTimesheet(invoice = {}) {
+  const preview = document.getElementById('invoiceTimesheetPreview');
+  const removeButton = document.getElementById('removeInvoiceTimesheetBtn');
+  const fromField = modalForm.elements.timesheetFrom;
+  const toField = modalForm.elements.timesheetTo;
+  const projectSelect = modalForm.elements.timesheetProjectIds;
+  const taskSelect = modalForm.elements.timesheetTaskIds;
+  modalForm._invoiceTimesheet = invoice.timesheet ? cloneData(invoice.timesheet) : null;
+  modalForm._timesheetDirty = false;
+
+  const updatePreview = () => {
+    const sheet = modalForm._invoiceTimesheet;
+    if (!sheet?.entries?.length) {
+      preview.innerHTML = '<strong>Niciun desfășurător atașat.</strong><br><span class="desc">Completează perioada, selectează proiectele/taskurile dorite și generează anexa.</span>';
+      removeButton.hidden = true;
+      return;
+    }
+    const totalSeconds = sheet.entries.reduce((sum, entry) => sum + Number(entry.seconds || 0), 0);
+    preview.innerHTML = `<strong>${sheet.entries.length} sesiuni · ${secondsToHm(totalSeconds)}</strong><br><span class="desc">Perioada ${formatDate(sheet.from)} – ${formatDate(sheet.to)}. Copia este păstrată în factură.</span>`;
+    removeButton.hidden = false;
+  };
+
+  const buildTimesheet = (showSuccess = true) => {
+    const from = parseRomanianDate(fromField.value);
+    const to = parseRomanianDate(toField.value);
+    if (!from || !to) {
+      toast('Completează începutul și finalul perioadei în format zz/ll/aaaa.');
+      return false;
+    }
+    if (from > to) {
+      toast('Data de început trebuie să fie înaintea datei de final.');
+      return false;
+    }
+    const projectIds = [...projectSelect.selectedOptions].map(option => option.value);
+    const taskIds = [...taskSelect.selectedOptions].map(option => option.value);
+    const selectedProjects = new Set(projectIds);
+    const selectedTasks = new Set(taskIds);
+    const hasSpecificSelection = selectedProjects.size || selectedTasks.size;
+    const clientId = modalForm.elements.clientId.value;
+    const entries = db.timeEntries.filter(entry => {
+      const task = db.tasks.find(item => item.id === entry.taskId);
+      if (!task) return false;
+      const date = timeEntryDateValue(entry);
+      if (date < from || date > to) return false;
+      if (clientId && task.clientId !== clientId) return false;
+      if (!hasSpecificSelection) return true;
+      return selectedTasks.has(task.id) || selectedProjects.has(task.projectId);
+    }).sort((a, b) => String(a.date).localeCompare(String(b.date))).map(entry => {
+      const task = db.tasks.find(item => item.id === entry.taskId);
+      return {
+        date: entry.date,
+        seconds: Number(entry.seconds || 0),
+        clientId: task.clientId || '',
+        projectId: task.projectId || '',
+        taskId: task.id,
+        client: clientName(task.clientId),
+        project: projectName(task.projectId),
+        task: task.title
+      };
+    });
+    if (!entries.length) {
+      toast('Nu există timp înregistrat pentru perioada și selecția alese.');
+      return false;
+    }
+    modalForm._invoiceTimesheet = { from, to, projectIds, taskIds, entries };
+    modalForm._timesheetDirty = false;
+    fromField.value = invoiceDateFieldValue(from);
+    toField.value = invoiceDateFieldValue(to);
+    updatePreview();
+    if (showSuccess) toast('Desfășurătorul a fost adăugat facturii.');
+    return true;
+  };
+
+  modalForm._buildInvoiceTimesheet = buildTimesheet;
+  [fromField, toField, projectSelect, taskSelect, modalForm.elements.clientId].forEach(field => {
+    field.addEventListener('input', () => { modalForm._timesheetDirty = true; });
+    field.addEventListener('change', () => { modalForm._timesheetDirty = true; });
+  });
+  buildInvoiceTimesheetBtn.onclick = () => buildTimesheet(true);
+  removeButton.onclick = () => {
+    modalForm._invoiceTimesheet = null;
+    modalForm._timesheetDirty = false;
+    fromField.value = '';
+    toField.value = '';
+    [...projectSelect.options, ...taskSelect.options].forEach(option => { option.selected = false; });
+    updatePreview();
+    toast('Desfășurătorul a fost eliminat din factură.');
+  };
+  updatePreview();
+}
+
 function openInvoice(id = null) {
   const invoice = id ? db.invoices.find(item => item.id === id) : {};
   openModal(id ? 'Editează factura' : 'Factură nouă', invoiceForm(invoice), fd => {
@@ -3083,6 +3194,11 @@ function openInvoice(id = null) {
     const dueDate = parseRomanianDate(fd.get('dueDate'));
     const paymentDate = parseRomanianDate(fd.get('paymentDate'));
     if (!issueDate || dueDate === null || paymentDate === null) { toast('Folosește formatul zz/ll/aaaa pentru date.'); return false; }
+    const hasTimesheetPeriod = String(fd.get('timesheetFrom') || '').trim() || String(fd.get('timesheetTo') || '').trim();
+    if (modalForm._timesheetDirty) {
+      if (hasTimesheetPeriod && !modalForm._buildInvoiceTimesheet(false)) return false;
+      if (!hasTimesheetPeriod) modalForm._invoiceTimesheet = null;
+    }
     const duplicate = db.invoices.some(current => current.id !== id && current.series === fd.get('series').trim() && String(current.number) === fd.get('number').trim());
     if (duplicate) { toast('Există deja o factură cu această serie și acest număr.'); return false; }
     const item = {
@@ -3091,7 +3207,7 @@ function openInvoice(id = null) {
       series: fd.get('series').trim(), number: fd.get('number').trim(), issueDate, dueDate,
       currency: fd.get('currency'), exchangeRate: Number(fd.get('exchangeRate') || 1), status: fd.get('status'),
       paidAmount: Number(fd.get('paidAmount') || 0), paymentDate, paymentMethod: fd.get('paymentMethod'),
-      notes: fd.get('notes'), lines, createdAt: invoice.createdAt || Date.now()
+      notes: fd.get('notes'), lines, timesheet: modalForm._invoiceTimesheet ? cloneData(modalForm._invoiceTimesheet) : null, createdAt: invoice.createdAt || Date.now()
     };
     if (item.status === 'Încasată') {
       item.paidAmount = invoiceTotal(item);
@@ -3100,6 +3216,7 @@ function openInvoice(id = null) {
     if (id) db.invoices = db.invoices.map(current => current.id === id ? item : current); else db.invoices.unshift(item);
   }, id ? () => { db.invoices = db.invoices.filter(item => item.id !== id); } : null);
   bindInvoiceLines();
+  bindInvoiceTimesheet(invoice);
   bindRomanianDateFields(modalForm);
 }
 
@@ -3153,14 +3270,17 @@ function printInvoice(id) {
   const footerPng = safeFooterPng(issuer.footerPng);
   const footerImage = footerPng ? `<img src="${footerPng}" alt="Element grafic subsol">` : '';
   const rows = invoice.lines.map((line, index) => `<tr><td>${index + 1}</td><td><strong>${escapeHtml(line.description)}</strong></td><td>${Number(line.quantity).toLocaleString('ro-RO')}</td><td>${escapeHtml(line.unit)}</td><td>${money(line.unitPrice, invoice.currency)}</td><td>${Number(line.vatRate || 0)}%</td><td>${money(Number(line.quantity) * Number(line.unitPrice) * (1 + Number(line.vatRate || 0) / 100), invoice.currency)}</td></tr>`).join('');
+  const timesheetRows = (invoice.timesheet?.entries || []).map(entry => `<tr><td>${formatDateTime(entry.date)}</td><td>${escapeHtml(entry.client || '—')}</td><td>${escapeHtml(entry.project || '—')}</td><td>${escapeHtml(entry.task || '—')}</td><td>${secondsToHm(entry.seconds)}</td></tr>`).join('');
+  const timesheetTotal = (invoice.timesheet?.entries || []).reduce((sum, entry) => sum + Number(entry.seconds || 0), 0);
+  const timesheetAttachment = timesheetRows ? `<section class="timesheet-page"><h1>DESFĂȘURĂTOR ACTIVITATE</h1><div class="muted period">Anexă la factura ${escapeHtml(invoice.series)}-${escapeHtml(invoice.number)} · ${formatDate(invoice.timesheet.from)} – ${formatDate(invoice.timesheet.to)}</div><table><thead><tr><th>Dată</th><th>Client</th><th>Proiect</th><th>Activitate</th><th>Timp</th></tr></thead><tbody>${timesheetRows}</tbody></table><div class="timesheet-total">Total: ${secondsToHm(timesheetTotal)}</div></section>` : '';
   printWindow.document.write(`<!doctype html><html lang="ro"><head><meta charset="utf-8"><title>Factura ${escapeHtml(invoice.series)}-${escapeHtml(invoice.number)}</title><style>
-    @page{size:A4;margin:0}*{box-sizing:border-box}body{margin:0;padding:16mm 16mm 38mm;font:14px Arial,sans-serif;color:#152033;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{font-size:30px;margin:0}h2{font-size:16px;margin:0 0 10px}.head{display:flex;justify-content:space-between;gap:30px;padding-bottom:24px;border-bottom:3px solid #111827}.number{text-align:right}.number strong{display:block;font-size:18px;margin-top:8px}.parties{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin:30px 0}.box{line-height:1.65}.muted{color:#64748b}table{width:100%;border-collapse:collapse;margin-top:25px}th,td{padding:11px 9px;border-bottom:1px solid #dbe2ea;text-align:left}th{font-size:10px;text-transform:uppercase;color:#64748b}.totals{width:330px;margin:24px 0 0 auto}.total-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #dbe2ea}.grand{font-size:18px;font-weight:800;border-bottom:0}.notes{margin-top:38px;padding:16px;background:#f5f7fa;border-radius:10px;white-space:pre-wrap}.foot{position:fixed;left:16mm;right:16mm;bottom:6mm;color:#64748b;font-size:10px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}.foot img{display:block;max-width:100%;max-height:18mm;object-fit:contain}</style></head><body>
+    @page{size:A4;margin:0}*{box-sizing:border-box}body{margin:0;padding:16mm 16mm 38mm;font:14px Arial,sans-serif;color:#152033;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{font-size:30px;margin:0}h2{font-size:16px;margin:0 0 10px}.head{display:flex;justify-content:space-between;gap:30px;padding-bottom:24px;border-bottom:3px solid #111827}.number{text-align:right}.number strong{display:block;font-size:18px;margin-top:8px}.parties{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin:30px 0}.box{line-height:1.65}.muted{color:#64748b}table{width:100%;border-collapse:collapse;margin-top:25px}th,td{padding:11px 9px;border-bottom:1px solid #dbe2ea;text-align:left}th{font-size:10px;text-transform:uppercase;color:#64748b}.totals{width:330px;margin:24px 0 0 auto}.total-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #dbe2ea}.grand{font-size:18px;font-weight:800;border-bottom:0}.notes{margin-top:38px;padding:16px;background:#f5f7fa;border-radius:10px;white-space:pre-wrap}.foot{position:fixed;left:16mm;right:16mm;bottom:6mm;color:#64748b;font-size:10px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}.foot img{display:block;max-width:65%;max-height:11.7mm;object-fit:contain}.timesheet-page{page-break-before:always;padding-top:16mm}.timesheet-page .period{margin-top:8px}.timesheet-total{text-align:right;margin-top:20px;font-size:18px;font-weight:700}</style></head><body>
     <div class="head"><div><h1>FACTURĂ</h1><div class="muted">Document emis electronic</div></div><div class="number"><span>Seria / numărul</span><strong>${escapeHtml(invoice.series)}-${escapeHtml(invoice.number)}</strong><div>Data: ${formatDate(invoice.issueDate)}</div><div>Scadență: ${formatDate(invoice.dueDate)}</div></div></div>
     <div class="parties"><div class="box"><h2>FURNIZOR</h2><strong>${escapeHtml(issuer.businessName || 'Completează datele PFA')}</strong><br>CUI/CIF: ${escapeHtml(issuer.taxId || '—')}<br>Reg. Com.: ${escapeHtml(issuer.registryNo || '—')}<br>${escapeHtml(issuer.address || '—')}<br>IBAN: ${escapeHtml(issuer.iban || '—')}<br>${escapeHtml(issuer.bank || '')}<br>${escapeHtml(issuer.email || '')} ${escapeHtml(issuer.phone || '')}</div>
     <div class="box"><h2>CLIENT</h2><strong>${escapeHtml(client?.name || 'Fără client')}</strong><br>CUI/CIF: ${escapeHtml(client?.taxId || '—')}<br>Reg. Com.: ${escapeHtml(client?.registryNo || '—')}<br>${escapeHtml(client?.address || '—')}<br>${escapeHtml(client?.email || '')}<br>${escapeHtml(client?.phone || '')}</div></div>
     <table><thead><tr><th>#</th><th>Produs / serviciu</th><th>Cant.</th><th>UM</th><th>Preț</th><th>TVA</th><th>Total</th></tr></thead><tbody>${rows}</tbody></table>
     <div class="totals"><div class="total-row"><span>Subtotal</span><strong>${money(invoiceSubtotal(invoice), invoice.currency)}</strong></div><div class="total-row"><span>TVA</span><strong>${money(invoiceVat(invoice), invoice.currency)}</strong></div><div class="total-row grand"><span>Total</span><strong>${money(invoiceTotal(invoice), invoice.currency)}</strong></div></div>
-    ${invoice.notes ? `<div class="notes"><strong>Observații</strong><br>${escapeHtml(invoice.notes)}</div>` : ''}<div class="foot">${footerImage}<span>Generată local în Creative OS. Acest PDF nu confirmă transmiterea sau validarea în sistemul RO e-Factura.</span></div><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);
+    ${invoice.notes ? `<div class="notes"><strong>Observații</strong><br>${escapeHtml(invoice.notes)}</div>` : ''}${timesheetAttachment}<div class="foot">${footerImage}<span>Generată local în Creative OS. Acest PDF nu confirmă transmiterea sau validarea în sistemul RO e-Factura.</span></div><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);
   printWindow.document.close();
 }
 
@@ -3174,7 +3294,7 @@ function printTimesheet() {
   if (!printWindow) return toast('Permite ferestrele pop-up pentru tipărire.');
   const footerPng = safeFooterPng();
   const footerImage = footerPng ? `<img src="${footerPng}" alt="Element grafic subsol">` : '';
-  printWindow.document.write(`<!doctype html><html lang="ro"><head><meta charset="utf-8"><title>Desfășurător ${formatDate(reportFrom.value)} - ${formatDate(reportTo.value)}</title><style>@page{size:A4;margin:0}*{box-sizing:border-box}body{margin:0;padding:16mm 16mm 38mm;font:13px Arial;color:#172033;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{margin:0 0 8px}.muted{color:#64748b;margin-bottom:28px}table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #dbe2ea;text-align:left}th{text-transform:uppercase;font-size:10px;color:#64748b}.total{text-align:right;margin-top:20px;font-size:18px;font-weight:700}.foot{position:fixed;left:16mm;right:16mm;bottom:6mm;display:flex;justify-content:center}.foot img{display:block;max-width:100%;max-height:18mm;object-fit:contain}</style></head><body><h1>Desfășurător activitate</h1><div class="muted">${formatDate(reportFrom.value)} – ${formatDate(reportTo.value)} · ${escapeHtml(db.fiscal.businessName || 'Creative OS')}</div><table><thead><tr><th>Dată</th><th>Client</th><th>Proiect</th><th>Activitate</th><th>Timp</th></tr></thead><tbody>${rows}</tbody></table><div class="total">Total: ${secondsToHm(entries.reduce((sum, entry) => sum + Number(entry.seconds || 0), 0))}</div>${footerImage ? `<div class="foot">${footerImage}</div>` : ''}<script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);
+  printWindow.document.write(`<!doctype html><html lang="ro"><head><meta charset="utf-8"><title>Desfășurător ${formatDate(reportFrom.value)} - ${formatDate(reportTo.value)}</title><style>@page{size:A4;margin:0}*{box-sizing:border-box}body{margin:0;padding:16mm 16mm 38mm;font:13px Arial;color:#172033;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{margin:0 0 8px}.muted{color:#64748b;margin-bottom:28px}table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #dbe2ea;text-align:left}th{text-transform:uppercase;font-size:10px;color:#64748b}.total{text-align:right;margin-top:20px;font-size:18px;font-weight:700}.foot{position:fixed;left:16mm;right:16mm;bottom:6mm;display:flex;justify-content:center}.foot img{display:block;max-width:65%;max-height:11.7mm;object-fit:contain}</style></head><body><h1>Desfășurător activitate</h1><div class="muted">${formatDate(reportFrom.value)} – ${formatDate(reportTo.value)} · ${escapeHtml(db.fiscal.businessName || 'Creative OS')}</div><table><thead><tr><th>Dată</th><th>Client</th><th>Proiect</th><th>Activitate</th><th>Timp</th></tr></thead><tbody>${rows}</tbody></table><div class="total">Total: ${secondsToHm(entries.reduce((sum, entry) => sum + Number(entry.seconds || 0), 0))}</div>${footerImage ? `<div class="foot">${footerImage}</div>` : ''}<script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);
   printWindow.document.close();
 }
 
@@ -3194,7 +3314,7 @@ function updateFooterPngPreview() {
   if (!preview || !removeButton) return;
   const image = safeFooterPng();
   preview.innerHTML = image
-    ? `<img src="${image}" alt="Previzualizare PNG subsol" style="display:block;max-width:100%;max-height:70px;object-fit:contain">`
+    ? `<img src="${image}" alt="Previzualizare PNG subsol" style="display:block;max-width:65%;max-height:46px;object-fit:contain">`
     : '<span class="desc">Niciun PNG încărcat.</span>';
   removeButton.hidden = !image;
 }
