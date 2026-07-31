@@ -3363,7 +3363,7 @@ function printInvoice(id) {
     <div class="box"><h2>CLIENT</h2><strong>${escapeHtml(client?.name || 'Fără client')}</strong><br>CUI/CIF: ${escapeHtml(client?.taxId || '—')}<br>Reg. Com.: ${escapeHtml(client?.registryNo || '—')}<br>${escapeHtml(client?.address || '—')}<br>${escapeHtml(client?.email || '')}<br>${escapeHtml(client?.phone || '')}</div></div>
     <table><thead><tr><th>#</th><th>Produs / serviciu</th><th>Cant.</th><th>UM</th><th>Preț</th><th>TVA</th><th>Total</th></tr></thead><tbody>${rows}</tbody></table>
     <div class="totals"><div class="total-row"><span>Subtotal</span><strong>${money(invoiceSubtotal(invoice), invoice.currency)}</strong></div><div class="total-row"><span>TVA</span><strong>${money(invoiceVat(invoice), invoice.currency)}</strong></div><div class="total-row grand"><span>Total</span><strong>${money(invoiceTotal(invoice), invoice.currency)}</strong></div></div>
-    ${invoice.notes ? `<div class="notes"><strong>Observații</strong><br>${escapeHtml(invoice.notes)}</div>` : ''}${timesheetAttachment}<div class="foot">${footerImage}<span>Generată local în Creative OS. Acest PDF nu confirmă transmiterea sau validarea în sistemul RO e-Factura.</span></div><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);
+    ${invoice.notes ? `<div class="notes"><strong>Observații</strong><br>${escapeHtml(invoice.notes)}</div>` : ''}${timesheetAttachment}<div class="foot">${footerImage}<span>Generată local în Creative OS - ©Mihai Petcu 2026. Acest PDF nu confirmă transmiterea sau validarea în sistemul RO e-Factura.</span></div><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);
   printWindow.document.close();
 }
 
