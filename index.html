@@ -2188,7 +2188,10 @@ function normalizeDb(data) {
     rateCurrency: t.rateCurrency === 'EUR' ? 'EUR' : 'RON',
     hourlyRate: Number(t.hourlyRate || 0),
     taskValue: Number(t.taskValue || 0),
-    trackedSeconds: Number(t.trackedSeconds || 0)
+    trackedSeconds: Number(t.trackedSeconds || 0),
+    paidInvoiceIds: Array.isArray(t.paidInvoiceIds) ? [...new Set(t.paidInvoiceIds.filter(Boolean))] : [],
+    paymentArchived: Boolean(t.paymentArchived),
+    statusBeforePaymentArchive: t.statusBeforePaymentArchive || ''
   }));
   data.timeEntries = Array.isArray(data.timeEntries) ? data.timeEntries.map(entry => ({
     id: entry.id || uid(),
@@ -2385,7 +2388,6 @@ function isActiveStatus(status) {
 }
 
 function taskBillableRon(task) {
-  if (task.status === 'Arhivat') return 0;
   if ((task.billingType || 'hourly') === 'fixed') return taskRateToRon(task.taskValue, task);
   return secondsToHours(task.trackedSeconds) * taskRateToRon(task.hourlyRate, task);
 }
@@ -2401,9 +2403,62 @@ function clientBalanceRon(clientId) {
 }
 
 function clientTrackedSeconds(clientId) {
-  return db.tasks
-    .filter(t => t.clientId === clientId && t.status !== 'Arhivat')
-    .reduce((sum, task) => sum + Number(task.trackedSeconds || 0), 0);
+  return currentMonthTrackedSeconds(clientId);
+}
+
+function currentMonthTrackedSeconds(clientId = '') {
+  const month = currentDateValue().slice(0, 7);
+  return db.timeEntries.reduce((sum, entry) => {
+    if (timeEntryDateValue(entry).slice(0, 7) !== month) return sum;
+    const task = db.tasks.find(item => item.id === entry.taskId);
+    if (!task || (clientId && task.clientId !== clientId)) return sum;
+    return sum + Number(entry.seconds || 0);
+  }, 0);
+}
+
+function invoiceLinkedTaskIds(invoice) {
+  const ids = new Set([
+    invoice?.sourceTaskId,
+    invoice?.timesheet?.taskId,
+    ...(Array.isArray(invoice?.timesheet?.taskIds) ? invoice.timesheet.taskIds : [])
+  ].filter(Boolean));
+  (invoice?.timesheet?.entries || []).forEach(entry => {
+    if (entry.taskId) {
+      ids.add(entry.taskId);
+      return;
+    }
+    const legacyTask = db.tasks.find(task => task.title === entry.task
+      && (!entry.clientId || task.clientId === entry.clientId)
+      && (!entry.projectId || task.projectId === entry.projectId));
+    if (legacyTask) ids.add(legacyTask.id);
+  });
+  return [...ids].filter(id => db.tasks.some(task => task.id === id));
+}
+
+function syncPaidInvoiceTasks() {
+  const paidInvoicesByTask = new Map();
+  db.invoices.forEach(invoice => {
+    if (invoiceStatusValue(invoice) !== 'Încasată') return;
+    invoiceLinkedTaskIds(invoice).forEach(taskId => {
+      if (!paidInvoicesByTask.has(taskId)) paidInvoicesByTask.set(taskId, []);
+      paidInvoicesByTask.get(taskId).push(invoice.id);
+    });
+  });
+  db.tasks.forEach(task => {
+    const paidInvoiceIds = paidInvoicesByTask.get(task.id) || [];
+    task.paidInvoiceIds = paidInvoiceIds;
+    if (paidInvoiceIds.length) {
+      if (task.status !== 'Arhivat' && !task.paymentArchived) {
+        task.statusBeforePaymentArchive = task.status;
+        task.paymentArchived = true;
+      }
+      if (task.paymentArchived) task.status = 'Arhivat';
+    } else if (task.paymentArchived) {
+      task.status = task.statusBeforePaymentArchive || 'Finalizat';
+      task.paymentArchived = false;
+      task.statusBeforePaymentArchive = '';
+    }
+  });
 }
 
 function addTimeEntry(taskId, seconds, source = 'manual', date = new Date().toISOString()) {
@@ -2583,6 +2638,7 @@ function sortTimeEntries(entries, sortBy = 'date-desc') {
 }
 
 function render() {
+  syncPaidInvoiceTasks();
   saveDb();
   updateCurrencyUi();
   populateSelects();
@@ -2634,9 +2690,7 @@ function renderStats() {
   const overdue = db.tasks.filter(isOverdue).length;
   const today = new Date().toISOString().slice(0,10);
   const dueToday = db.tasks.filter(t => t.deadline === today && !['Finalizat','Arhivat'].includes(t.status)).length;
-  const tracked = db.tasks
-    .filter(t => t.status !== 'Arhivat')
-    .reduce((sum,t) => sum + (t.trackedSeconds || 0), 0) / 3600;
+  const tracked = currentMonthTrackedSeconds() / 3600;
   const activeClients = db.clients.filter(c => db.tasks.some(t => t.clientId === c.id && !['Finalizat','Arhivat'].includes(t.status))).length;
   const balance = db.tasks
     .filter(t => t.status !== 'Arhivat')
@@ -2646,7 +2700,7 @@ function renderStats() {
     <div class="stat"><span>Deadline azi</span><strong>${dueToday}</strong></div>
     <div class="stat"><span>Întârziate</span><strong>${overdue}</strong></div>
     <div class="stat"><span>Clienți activi</span><strong>${activeClients}</strong></div>
-    <div class="stat"><span>Ore lucrate</span><strong>${tracked.toFixed(1)}</strong></div>
+    <div class="stat"><span>Ore luna curentă</span><strong>${tracked.toFixed(1)}</strong></div>
     <div class="stat"><span>Sold la zi</span><strong>${displayAmount(balance)}</strong></div>
   `;
 }
@@ -2752,7 +2806,7 @@ function renderClients() {
       <div class="info-row"><span>Email</span><strong>${escapeHtml(c.email || '-')}</strong></div>
       <div class="info-row"><span>Proiecte active</span><strong>${activeProjects}</strong></div>
       <div class="info-row"><span>Taskuri active</span><strong>${activeTasks}</strong></div>
-      <div class="info-row"><span>Ore lucrate</span><strong>${workedHours.toFixed(1)}</strong></div>
+      <div class="info-row"><span>Ore luna curentă</span><strong>${workedHours.toFixed(1)}</strong></div>
       <div class="info-row"><span>Sold la zi</span><strong>${displayAmount(balance)}</strong></div>
     </article>`;
   }).join('') : `<div class="empty">Nu ai încă niciun client.</div>`;
@@ -3296,7 +3350,11 @@ function bindInvoiceTimesheet(invoice = {}) {
       toast('Nu există timp înregistrat pentru perioada și selecția alese.');
       return false;
     }
-    modalForm._invoiceTimesheet = { from, to, clientId, projectId, taskId, entries };
+    modalForm._invoiceTimesheet = {
+      from, to, clientId, projectId, taskId,
+      taskIds: [...new Set(entries.map(entry => entry.taskId).filter(Boolean))],
+      entries
+    };
     modalForm._timesheetDirty = false;
     fromField.value = invoiceDateFieldValue(from);
     toField.value = invoiceDateFieldValue(to);
@@ -3534,11 +3592,14 @@ function openExpense(id = null) {
 function markInvoicePaid(id) {
   const invoice = db.invoices.find(item => item.id === id);
   if (!invoice) return;
+  const linkedTaskCount = invoiceLinkedTaskIds(invoice).length;
   invoice.paidAmount = invoiceTotal(invoice);
   invoice.paymentDate = currentDateValue();
   invoice.status = 'Încasată';
   render();
-  toast('Factura a fost marcată ca încasată.');
+  toast(linkedTaskCount
+    ? `Factura a fost încasată și ${linkedTaskCount} ${linkedTaskCount === 1 ? 'task a fost arhivat' : 'taskuri au fost arhivate'}.`
+    : 'Factura a fost încasată. Nu are taskuri asociate de arhivat.');
 }
 
 function printInvoice(id) {
@@ -3651,6 +3712,7 @@ function openTask(id = null) {
   const t = id ? db.tasks.find(x => x.id === id) : { status: 'Neînceput', priority: 'Medium', progress: 0, tags: [] };
   openModal(id ? 'Editează task' : 'Task nou', taskForm(t), fd => {
     const item = {
+      ...t,
       id: id || uid(),
       title: fd.get('title').trim(),
       clientId: fd.get('clientId'),
