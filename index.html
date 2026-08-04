@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Creative OS - Taskuri & Clienți</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23111111'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' font-size='24' fill='white' font-family='Arial' font-weight='700'%3ECO%3C/text%3E%3C/svg%3E">
+<title>404 MediaPro Manager</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23111111'/%3E%3Ctext x='50%25' y='56%25' text-anchor='middle' font-size='19' fill='white' font-family='Arial' font-weight='700'%3E404%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&icon_names=add_task,dashboard,person_text,playlist_add_check,receipt_long,settings,timer,view_kanban" />
 <style>
@@ -1111,6 +1111,93 @@ textarea.field {
   margin-top: 18px;
 }
 
+.invoice-view {
+  display: grid;
+  gap: 16px;
+}
+
+.invoice-view-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255,255,255,.055);
+}
+
+.invoice-view-head h4 {
+  margin: 4px 0 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 24px;
+  color: var(--ink);
+}
+
+.invoice-view-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.invoice-view-card {
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,.045);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.invoice-view-card strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.invoice-view-section h4 {
+  margin: 0 0 9px;
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.invoice-view-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.invoice-view-table {
+  width: 100%;
+  min-width: 620px;
+  border-collapse: collapse;
+}
+
+.invoice-view-table th,
+.invoice-view-table td {
+  padding: 10px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  font-size: 12px;
+  vertical-align: top;
+}
+
+.invoice-view-table th {
+  color: var(--muted);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.invoice-view-table tr:last-child td { border-bottom: 0; }
+
+.invoice-view-totals {
+  width: min(330px, 100%);
+  margin-left: auto;
+}
+
 .empty {
   text-align: center;
   padding: 50px 18px;
@@ -1364,6 +1451,9 @@ body:not(.dark) .signature-floater {
   .modal-actions {
     flex-direction: column;
   }
+
+  .invoice-view-grid { grid-template-columns: 1fr; }
+  .invoice-view-head { flex-direction: column; }
 
 .modal-actions > div:last-child {
     display: grid !important;
@@ -1658,9 +1748,9 @@ body:not(.dark) .signature-floater {
   <aside class="sidebar">
     <div class="logo">
       <div class="brand">
-        <div class="logo-mark">CO</div>
+        <div class="logo-mark">404</div>
         <div>
-          <h1>Creative OS</h1>
+          <h1>404 MediaPro Manager</h1>
           <span>taskuri · clienți · proiecte</span>
         </div>
       </div>
@@ -1793,7 +1883,7 @@ body:not(.dark) .signature-floater {
           <label>Task activ
             <select class="field" id="timerTask"></select>
           </label>
-          <label>Tarif orar timer (<span id="timerRateCurrency">RON</span>)
+          <label><span>Tarif orar timer (<span id="timerRateCurrency">RON</span>)</span>
             <input class="field" id="timerRate" type="number" min="0" step="0.01" placeholder="ex. 250">
           </label>
           <div class="timer-display" id="timerDisplay">00:00:00</div>
@@ -1897,7 +1987,7 @@ body:not(.dark) .signature-floater {
         </div>
 
         <div class="finance-panel" id="finance-invoice-list">
-          <div class="finance-callout warning" style="margin-bottom:14px"><strong>PDF local ≠ RO e-Factura.</strong> Creative OS generează și păstrează factura, dar nu o transmite în SPV și nu confirmă validarea ANAF. Pentru folosire fiscală completă este necesară o integrare separată cu RO e-Factura.</div>
+          <div class="finance-callout warning" style="margin-bottom:14px"><strong>PDF local ≠ RO e-Factura.</strong> 404 MediaPro Manager generează și păstrează factura, dar nu o transmite în SPV și nu confirmă validarea ANAF. Pentru folosire fiscală completă este necesară o integrare separată cu RO e-Factura.</div>
           <div class="filters" style="grid-template-columns:1fr repeat(2,minmax(150px,190px))">
             <input class="field" id="invoiceSearch" placeholder="Caută număr, client, serviciu...">
             <select class="field" id="invoiceStatus"><option value="">Toate statusurile</option><option>Emisă</option><option>Încasată</option><option>Restantă</option><option>Anulată</option></select>
@@ -1993,7 +2083,7 @@ body:not(.dark) .signature-floater {
       </button>
       <button class="settings-action" id="resetDataBtn" type="button">
         <span class="settings-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M6 7l1 14h10l1-14"/><path d="M9 7V4h6v3"/></svg></span>
-        <span><strong>Șterge datele locale</strong><small>Resetează workspace-ul Creative OS pe acest browser.</small></span>
+        <span><strong>Șterge datele locale</strong><small>Resetează workspace-ul 404 MediaPro Manager pe acest browser.</small></span>
       </button>
       <input id="importFile" type="file" accept="application/json" hidden>
     </div>
@@ -2961,7 +3051,7 @@ function renderInvoicesTable() {
       <td><strong>${financeMoney(invoiceTotalRon(invoice))}</strong>${showOriginal ? `<br><span class="desc">original: ${originalTotal}</span>` : ''}</td>
       <td>${financeMoney(invoicePaidRon(invoice))}${showOriginal ? `<br><span class="desc">original: ${originalPaid}</span>` : ''}</td>
       <td><span class="${invoiceStatusClass(status)}"><span class="status-dot"></span>${status}</span></td>
-      <td><div class="table-actions"><button class="btn secondary" onclick="printInvoice('${invoice.id}')">PDF</button>${status !== 'Încasată' && status !== 'Anulată' ? `<button class="btn secondary" onclick="markInvoicePaid('${invoice.id}')">Încasează</button>` : ''}<button class="btn secondary" onclick="openInvoice('${invoice.id}')">Edit</button></div></td>
+      <td><div class="table-actions"><button class="btn secondary" onclick="printInvoice('${invoice.id}')">PDF</button><button class="btn secondary" onclick="viewInvoice('${invoice.id}')">View</button>${status !== 'Încasată' && status !== 'Anulată' ? `<button class="btn secondary" onclick="markInvoicePaid('${invoice.id}')">Încasează</button>` : ''}<button class="btn secondary" onclick="openInvoice('${invoice.id}')">Edit</button></div></td>
     </tr>`;
   }).join('')}</tbody>`;
 }
@@ -3268,6 +3358,60 @@ function bindInvoiceTimesheet(invoice = {}) {
   updatePreview();
 }
 
+function invoiceViewHtml(invoice) {
+  const client = db.clients.find(item => item.id === invoice.clientId);
+  const task = db.tasks.find(item => item.id === invoice.sourceTaskId);
+  const project = db.projects.find(item => item.id === invoice.projectId);
+  const status = invoiceStatusValue(invoice);
+  const lines = (invoice.lines || []).map((line, index) => {
+    const net = Number(line.quantity || 0) * Number(line.unitPrice || 0);
+    const vat = net * Number(line.vatRate || 0) / 100;
+    return `<tr><td>${index + 1}</td><td><strong>${escapeHtml(line.description || '—')}</strong></td><td>${Number(line.quantity || 0).toLocaleString('ro-RO')} ${escapeHtml(line.unit || '')}</td><td>${money(line.unitPrice || 0, invoice.currency || 'RON')}</td><td>${Number(line.vatRate || 0)}%</td><td><strong>${money(net + vat, invoice.currency || 'RON')}</strong></td></tr>`;
+  }).join('');
+  const timesheetEntries = invoice.timesheet?.entries || [];
+  const timesheetSeconds = timesheetEntries.reduce((sum, entry) => sum + Number(entry.seconds || 0), 0);
+  const timesheetRows = timesheetEntries.map(entry => `<tr><td>${formatDateTime(entry.date)}</td><td>${escapeHtml(entry.project || '—')}</td><td>${escapeHtml(entry.task || '—')}</td><td>${secondsToHm(entry.seconds)}</td></tr>`).join('');
+  const remaining = Math.max(0, invoiceTotal(invoice) - Number(invoice.paidAmount || 0));
+  return `<div class="invoice-view">
+    <div class="invoice-view-head">
+      <div><span class="desc">Factură</span><h4>${escapeHtml(invoice.series || '')}-${escapeHtml(invoice.number || '')}</h4><span class="desc">Emisă ${formatDate(invoice.issueDate)} · scadență ${formatDate(invoice.dueDate)}</span></div>
+      <span class="${invoiceStatusClass(status)}"><span class="status-dot"></span>${status}</span>
+    </div>
+    <div class="invoice-view-grid">
+      <div class="invoice-view-card">Client<strong>${escapeHtml(client?.name || 'Fără client')}</strong>${client?.taxId ? `CUI/CIF: ${escapeHtml(client.taxId)}` : ''}${client?.email ? `<br>${escapeHtml(client.email)}` : ''}</div>
+      <div class="invoice-view-card">Proiect<strong>${escapeHtml(project?.name || 'Fără proiect')}</strong>${task ? `Task: ${escapeHtml(task.title)}` : 'Fără task asociat'}</div>
+      <div class="invoice-view-card">Monedă și curs<strong>${escapeHtml(invoice.currency || 'RON')}</strong>${invoice.currency === 'EUR' ? `1 EUR = ${Number(invoice.exchangeRate || 0).toFixed(4)} RON` : 'Factură în lei'}</div>
+    </div>
+    <section class="invoice-view-section"><h4>Linii factură</h4><div class="invoice-view-scroll"><table class="invoice-view-table"><thead><tr><th>#</th><th>Descriere</th><th>Cantitate</th><th>Preț</th><th>TVA</th><th>Total</th></tr></thead><tbody>${lines || '<tr><td colspan="6">Fără linii.</td></tr>'}</tbody></table></div></section>
+    <div class="invoice-view-totals">
+      <div class="info-row"><span>Subtotal</span><strong>${money(invoiceSubtotal(invoice), invoice.currency || 'RON')}</strong></div>
+      <div class="info-row"><span>TVA</span><strong>${money(invoiceVat(invoice), invoice.currency || 'RON')}</strong></div>
+      <div class="info-row"><span>Total</span><strong>${money(invoiceTotal(invoice), invoice.currency || 'RON')}</strong></div>
+      <div class="info-row"><span>Încasat</span><strong>${money(invoice.paidAmount || 0, invoice.currency || 'RON')}</strong></div>
+      <div class="info-row"><span>Rămas</span><strong>${money(remaining, invoice.currency || 'RON')}</strong></div>
+    </div>
+    <div class="invoice-view-grid">
+      <div class="invoice-view-card">Data încasării<strong>${invoice.paymentDate ? formatDate(invoice.paymentDate) : '—'}</strong></div>
+      <div class="invoice-view-card">Metodă de plată<strong>${escapeHtml(invoice.paymentMethod || '—')}</strong></div>
+      <div class="invoice-view-card">Curs salvat la emitere<strong>${Number(invoice.exchangeRate || 0).toFixed(4)} RON/EUR</strong></div>
+    </div>
+    ${timesheetRows ? `<section class="invoice-view-section"><h4>Desfășurător atașat · ${formatDate(invoice.timesheet.from)} – ${formatDate(invoice.timesheet.to)} · ${secondsToHm(timesheetSeconds)}</h4><div class="invoice-view-scroll"><table class="invoice-view-table"><thead><tr><th>Dată</th><th>Proiect</th><th>Task</th><th>Timp</th></tr></thead><tbody>${timesheetRows}</tbody></table></div></section>` : ''}
+    ${invoice.notes ? `<div class="finance-callout"><strong>Observații</strong><br>${escapeHtml(invoice.notes)}</div>` : ''}
+  </div>`;
+}
+
+function viewInvoice(id) {
+  const invoice = db.invoices.find(item => item.id === id);
+  if (!invoice) return toast('Factura nu mai există.');
+  modalTitle.textContent = `View factură ${invoice.series}-${invoice.number}`;
+  modalForm.innerHTML = invoiceViewHtml(invoice) + `<div class="modal-actions"><div></div><div style="display:flex;gap:10px"><button type="button" class="btn secondary" id="viewInvoicePdfBtn">PDF</button><button type="button" class="btn secondary" id="viewInvoiceEditBtn">Edit</button><button type="button" class="btn" id="viewInvoiceCloseBtn">Închide</button></div></div>`;
+  modalBackdrop.classList.add('active');
+  modalForm.onsubmit = event => event.preventDefault();
+  viewInvoicePdfBtn.onclick = () => printInvoice(id);
+  viewInvoiceEditBtn.onclick = () => openInvoice(id);
+  viewInvoiceCloseBtn.onclick = () => modalBackdrop.classList.remove('active');
+}
+
 function openInvoice(id = null) {
   const invoice = id ? db.invoices.find(item => item.id === id) : {};
   openModal(id ? 'Editează factura' : 'Factură nouă', invoiceForm(invoice), fd => {
@@ -3363,7 +3507,7 @@ function printInvoice(id) {
     <div class="box"><h2>CLIENT</h2><strong>${escapeHtml(client?.name || 'Fără client')}</strong><br>CUI/CIF: ${escapeHtml(client?.taxId || '—')}<br>Reg. Com.: ${escapeHtml(client?.registryNo || '—')}<br>${escapeHtml(client?.address || '—')}<br>${escapeHtml(client?.email || '')}<br>${escapeHtml(client?.phone || '')}</div></div>
     <table><thead><tr><th>#</th><th>Produs / serviciu</th><th>Cant.</th><th>UM</th><th>Preț</th><th>TVA</th><th>Total</th></tr></thead><tbody>${rows}</tbody></table>
     <div class="totals"><div class="total-row"><span>Subtotal</span><strong>${money(invoiceSubtotal(invoice), invoice.currency)}</strong></div><div class="total-row"><span>TVA</span><strong>${money(invoiceVat(invoice), invoice.currency)}</strong></div><div class="total-row grand"><span>Total</span><strong>${money(invoiceTotal(invoice), invoice.currency)}</strong></div></div>
-    ${invoice.notes ? `<div class="notes"><strong>Observații</strong><br>${escapeHtml(invoice.notes)}</div>` : ''}${timesheetAttachment}<div class="foot">${footerImage}<span>Generată local în Creative OS - ©Mihai Petcu 2026. Acest PDF nu confirmă transmiterea sau validarea în sistemul RO e-Factura.</span></div><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);
+    ${invoice.notes ? `<div class="notes"><strong>Observații</strong><br>${escapeHtml(invoice.notes)}</div>` : ''}${timesheetAttachment}<div class="foot">${footerImage}<span>Generată local în 404 MediaPro Manager - ©Mihai Petcu 2026. Acest PDF nu confirmă transmiterea sau validarea în sistemul RO e-Factura.</span></div><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);
   printWindow.document.close();
 }
 
@@ -3377,7 +3521,7 @@ function printTimesheet() {
   if (!printWindow) return toast('Permite ferestrele pop-up pentru tipărire.');
   const footerPng = safeFooterPng();
   const footerImage = footerPng ? `<img src="${footerPng}" alt="Element grafic subsol">` : '';
-  printWindow.document.write(`<!doctype html><html lang="ro"><head><meta charset="utf-8"><title>Desfășurător ${formatDate(reportFrom.value)} - ${formatDate(reportTo.value)}</title><style>@page{size:A4;margin:0}*{box-sizing:border-box}body{margin:0;padding:16mm 16mm 38mm;font:13px Arial;color:#172033;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{margin:0 0 8px}.muted{color:#64748b;margin-bottom:28px}table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #dbe2ea;text-align:left}th{text-transform:uppercase;font-size:10px;color:#64748b}.total{text-align:right;margin-top:20px;font-size:18px;font-weight:700}.foot{position:fixed;left:16mm;right:16mm;bottom:6mm;display:flex;justify-content:center}.foot img{display:block;max-width:32.5%;max-height:5.85mm;object-fit:contain}</style></head><body><h1>Desfășurător activitate</h1><div class="muted">${formatDate(reportFrom.value)} – ${formatDate(reportTo.value)} · ${escapeHtml(db.fiscal.businessName || 'Creative OS')}</div><table><thead><tr><th>Dată</th><th>Client</th><th>Proiect</th><th>Activitate</th><th>Timp</th></tr></thead><tbody>${rows}</tbody></table><div class="total">Total: ${secondsToHm(entries.reduce((sum, entry) => sum + Number(entry.seconds || 0), 0))}</div>${footerImage ? `<div class="foot">${footerImage}</div>` : ''}<script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);
+  printWindow.document.write(`<!doctype html><html lang="ro"><head><meta charset="utf-8"><title>Desfășurător ${formatDate(reportFrom.value)} - ${formatDate(reportTo.value)}</title><style>@page{size:A4;margin:0}*{box-sizing:border-box}body{margin:0;padding:16mm 16mm 38mm;font:13px Arial;color:#172033;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{margin:0 0 8px}.muted{color:#64748b;margin-bottom:28px}table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #dbe2ea;text-align:left}th{text-transform:uppercase;font-size:10px;color:#64748b}.total{text-align:right;margin-top:20px;font-size:18px;font-weight:700}.foot{position:fixed;left:16mm;right:16mm;bottom:6mm;display:flex;justify-content:center}.foot img{display:block;max-width:32.5%;max-height:5.85mm;object-fit:contain}</style></head><body><h1>Desfășurător activitate</h1><div class="muted">${formatDate(reportFrom.value)} – ${formatDate(reportTo.value)} · ${escapeHtml(db.fiscal.businessName || '404 MediaPro Manager')}</div><table><thead><tr><th>Dată</th><th>Client</th><th>Proiect</th><th>Activitate</th><th>Timp</th></tr></thead><tbody>${rows}</tbody></table><div class="total">Total: ${secondsToHm(entries.reduce((sum, entry) => sum + Number(entry.seconds || 0), 0))}</div>${footerImage ? `<div class="foot">${footerImage}</div>` : ''}<script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);
   printWindow.document.close();
 }
 
@@ -3753,7 +3897,7 @@ exportBtn.onclick = () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'creative-os-backup.json';
+  a.download = '404-mediapro-manager-backup.json';
   document.body.appendChild(a);
   a.click();
   a.remove();
