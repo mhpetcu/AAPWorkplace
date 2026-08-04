@@ -3358,6 +3358,49 @@ function bindInvoiceTimesheet(invoice = {}) {
   updatePreview();
 }
 
+function calculateTaxScenario(grossRevenue, deductibleExpenses) {
+  const netIncome = Math.max(0, Number(grossRevenue || 0) - Number(deductibleExpenses || 0));
+  const minSalary = Number(db.fiscal.minimumSalary || 4050);
+  const cas12 = minSalary * 12;
+  const cas24 = minSalary * 24;
+  const chosen = Number(db.fiscal.chosenCasBase || 0);
+  const casMandatory = netIncome >= cas12;
+  const casVoluntary = !casMandatory && Boolean(db.fiscal.voluntaryCas);
+  let casBase = 0;
+  if (netIncome >= cas24) casBase = Math.max(cas24, chosen);
+  else if (netIncome >= cas12) casBase = Math.max(cas12, chosen);
+  else if (casVoluntary) casBase = Math.max(cas12, chosen);
+  const cas = casBase * Number(db.fiscal.casRate || 25) / 100;
+  const cassMinimum = minSalary * 6;
+  const cassMaximum = minSalary * Number(db.fiscal.cassMaxSalaries || 72);
+  const naturalCassBase = Math.min(netIncome, cassMaximum);
+  const cassBase = netIncome > 0 && netIncome < cassMinimum && !db.fiscal.cassMinimumExempt ? cassMinimum : naturalCassBase;
+  const cass = cassBase * Number(db.fiscal.cassRate || 10) / 100;
+  const cassDeductible = naturalCassBase * Number(db.fiscal.cassRate || 10) / 100;
+  const taxableIncome = Math.max(0, netIncome - cas - cassDeductible);
+  const incomeTax = taxableIncome * Number(db.fiscal.incomeTaxRate || 10) / 100;
+  return { netIncome, casMandatory, casVoluntary, cas, cass, incomeTax, totalTaxes: cas + cass + incomeTax };
+}
+
+function invoiceTaxImpact(invoice) {
+  const status = invoiceStatusValue(invoice);
+  const year = Number(String(invoice.paymentDate || invoice.issueDate || db.fiscal.taxYear).slice(0, 4)) || Number(db.fiscal.taxYear || new Date().getFullYear());
+  const receivedInvoices = receiptsForYear(year);
+  const actualGrossRevenue = receivedInvoices.reduce((sum, item) => sum + invoiceRevenueRon(item), 0);
+  const recordedInvoiceRevenue = receivedInvoices.some(item => item.id === invoice.id) ? invoiceRevenueRon(invoice) : 0;
+  const grossWithoutInvoice = Math.max(0, actualGrossRevenue - recordedInvoiceRevenue);
+  const deductibleExpenses = expensesForYear(year).reduce((sum, expense) => sum + expenseDeductibleRon(expense), 0);
+  const invoiceRevenue = status === 'Anulată' ? 0 : invoiceSubtotal(invoice) * invoiceExchangeRate(invoice);
+  const withoutInvoice = calculateTaxScenario(grossWithoutInvoice, deductibleExpenses);
+  const withInvoice = calculateTaxScenario(grossWithoutInvoice + invoiceRevenue, deductibleExpenses);
+  const cas = Math.max(0, withInvoice.cas - withoutInvoice.cas);
+  const cass = Math.max(0, withInvoice.cass - withoutInvoice.cass);
+  const incomeTax = Math.max(0, withInvoice.incomeTax - withoutInvoice.incomeTax);
+  const totalTaxes = cas + cass + incomeTax;
+  const share = invoiceRevenue > 0 ? totalTaxes / invoiceRevenue * 100 : 0;
+  return { year, invoiceRevenue, cas, cass, incomeTax, totalTaxes, share, casMandatory: withInvoice.casMandatory, casVoluntary: withInvoice.casVoluntary, isScenario: status !== 'Încasată', isCancelled: status === 'Anulată' };
+}
+
 function invoiceViewHtml(invoice) {
   const client = db.clients.find(item => item.id === invoice.clientId);
   const task = db.tasks.find(item => item.id === invoice.sourceTaskId);
@@ -3372,6 +3415,14 @@ function invoiceViewHtml(invoice) {
   const timesheetSeconds = timesheetEntries.reduce((sum, entry) => sum + Number(entry.seconds || 0), 0);
   const timesheetRows = timesheetEntries.map(entry => `<tr><td>${formatDateTime(entry.date)}</td><td>${escapeHtml(entry.project || '—')}</td><td>${escapeHtml(entry.task || '—')}</td><td>${secondsToHm(entry.seconds)}</td></tr>`).join('');
   const remaining = Math.max(0, invoiceTotal(invoice) - Number(invoice.paidAmount || 0));
+  const taxImpact = invoiceTaxImpact(invoice);
+  const taxShare = Math.min(100, taxImpact.share);
+  const casStatus = taxImpact.casMandatory ? 'obligatoriu' : taxImpact.casVoluntary ? 'opțional activ' : 'opțional, neactivat';
+  const taxContext = taxImpact.isCancelled
+    ? 'Factura este anulată, deci nu este tratată ca venit în această estimare.'
+    : taxImpact.isScenario
+      ? `Scenariu de încasare integrală în ${taxImpact.year}.`
+      : `Impact marginal în anul încasării ${taxImpact.year}.`;
   return `<div class="invoice-view">
     <div class="invoice-view-head">
       <div><span class="desc">Factură</span><h4>${escapeHtml(invoice.series || '')}-${escapeHtml(invoice.number || '')}</h4><span class="desc">Emisă ${formatDate(invoice.issueDate)} · scadență ${formatDate(invoice.dueDate)}</span></div>
@@ -3396,6 +3447,7 @@ function invoiceViewHtml(invoice) {
       <div class="invoice-view-card">Curs salvat la emitere<strong>${Number(invoice.exchangeRate || 0).toFixed(4)} RON/EUR</strong></div>
     </div>
     ${timesheetRows ? `<section class="invoice-view-section"><h4>Desfășurător atașat · ${formatDate(invoice.timesheet.from)} – ${formatDate(invoice.timesheet.to)} · ${secondsToHm(timesheetSeconds)}</h4><div class="invoice-view-scroll"><table class="invoice-view-table"><thead><tr><th>Dată</th><th>Proiect</th><th>Task</th><th>Timp</th></tr></thead><tbody>${timesheetRows}</tbody></table></div></section>` : ''}
+    <section class="invoice-view-section"><h4>Structura taxelor estimate · factura ${escapeHtml(invoice.series || '')}-${escapeHtml(invoice.number || '')}</h4><div class="finance-card" style="padding:16px"><div class="tax-donut-wrap"><div class="tax-donut" style="--tax-share:${taxShare.toFixed(1)}%" data-label="${taxImpact.share.toFixed(1)}%"></div><div class="tax-breakdown"><div class="info-row"><span>Venit fiscal estimat</span><strong>${money(taxImpact.invoiceRevenue, 'RON')}</strong></div><div class="info-row"><span>CAS (${Number(db.fiscal.casRate || 25)}% · ${casStatus})</span><strong>${money(taxImpact.cas, 'RON')}</strong></div><div class="info-row"><span>CASS (${Number(db.fiscal.cassRate || 10)}%)</span><strong>${money(taxImpact.cass, 'RON')}</strong></div><div class="info-row"><span>Impozit (${Number(db.fiscal.incomeTaxRate || 10)}%)</span><strong>${money(taxImpact.incomeTax, 'RON')}</strong></div><div class="info-row"><span>Total estimat pentru factură</span><strong>${money(taxImpact.totalTaxes, 'RON')}</strong></div></div></div><div class="finance-callout warning" style="margin-top:14px"><strong>Rezervă recomandată: ${money(taxImpact.totalTaxes, 'RON')}.</strong> ${taxContext} Estimarea reprezintă diferența dintre taxele anuale cu și fără această factură; TVA-ul nu este inclus în venitul fiscal.</div></div></section>
     ${invoice.notes ? `<div class="finance-callout"><strong>Observații</strong><br>${escapeHtml(invoice.notes)}</div>` : ''}
   </div>`;
 }
